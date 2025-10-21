@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Daily Drop</title>
+
+
+  <style>/* Reset & Basic Styles */
+  :root {
+  --card-bg:            #fff;
+  --text-color:         #333;
+  --subtext-color:      #666;
+  --light-bg:           #f3f3f3;
+  --accent-teal:        #1fa82d;
+  --secondary-purple:   #1fa82d;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: #f0fdf4;
+  color: #333;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Navbar - Green Gradient */
+nav {
+  background: linear-gradient(135deg, #0c831f, #1fa82d);
+  padding: 1.5rem 2rem;
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+}
+.nav-container a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: -0.5px;
+  /* Remove the h1 styling from nested h1 */
+}
+.nav-container h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: inherit;
+  margin: 0;
+}
+
+/* Checkout Card Containers */
+.checkout-container {
+  max-width: 1120px;
+  margin: 40px auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 1.05fr 1.8fr;
+  gap: 2.5rem;
+}
+.order-summary, .checkout-form {
+  background: #fff;
+  border-radius: 12px;
+  padding: 32px 28px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Titles */
+.order-summary h2, .checkout-form h2 {
+  color: #1fa82d;
+  font-size: 1.5rem;
+  margin-bottom: 28px;
+  font-weight: 700;
+  border: none;
+  padding-bottom: 0;
+  position: relative;
+}
+.checkout-form h2::before {
+  content: '';
+  display: none;
+}
+/* Order Summary */
+.order-summary {
+  background: #fff;                  /* was var(--card-bg) */
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  height: fit-content;
+}
+
+.order-summary h2 {
+  color: #1fa82d;                    /* was var(--text-color) */
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f3f3f3;  /* was var(--light-bg) */
+}
+
+.order-items {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.order-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.order-item img {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  border-radius: 8px;
+  margin-right: 1.5rem;
+  background: #f3f3f3;               /* was var(--light-bg) */
+  padding: 0.5rem;
+}
+
+.item-info h4 {
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
+  color: #333;                       /* was var(--text-color) */
+}
+
+.item-info p {
+  color: #666;                       /* was var(--subtext-color) */
+  font-size: 0.9rem;
+}
+
+.total-price {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #1fa82d;     /* was var(--accent-teal) */
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1fa82d;                    /* was var(--secondary-purple) */
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-weight: 500;
+  color: #183d20;
+  font-size: 1rem;
+}
+.form-input {
+  width: 100%;
+  padding: 0.9rem 1.3rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #fff;
+  color: #223c2c;
+  transition: border 0.24s;
+  resize: none;
+}
+.form-input:focus {
+  outline: none;
+  border-color: #1fa82d;
+  box-shadow: 0 0 0 2px #a7f3d0;
+}
+
+/* Cash on Delivery Section */
+.cod-section {
+  background: #f0fdf4;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  text-align: center;
+  border: 2px solid #bbf7d0;
+}
+.cod-icon {
+  font-size: 2rem;
+  margin-bottom: .5rem;
+  color: #0c831f;
+}
+.cod-section h3 {
+  color: #228b22;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+  font-size: 1.15rem;
+}
+.cod-section p {
+  font-size: 0.97rem;
+  color: #4a5568;
+}
+
+/* Confirm Button */
+.confirm-btn {
+  background: linear-gradient(135deg, #0c831f, #1fa82d);
+  color: #fff;
+  padding: 1.1rem 0;
+  border: none;
+  border-radius: 8px;
+  width: 100%;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 4px;
+  margin-bottom: 2px;
+  box-shadow: 0 3px 12px rgba(16,150,37,0.08);
+  transition: background 0.23s, box-shadow 0.23s, transform .17s;
+}
+.confirm-btn:hover, .confirm-btn:focus {
+  background: linear-gradient(120deg, #1fa82d, #0c831f 85%);
+  box-shadow: 0 7px 25px rgba(31,168,45,0.12);
+  transform: translateY(-1px) scale(1.015);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .checkout-container {
+    grid-template-columns: 1fr;
+    gap: 1.6rem;
+    margin: 18px auto;
+  }
+  .order-summary, .checkout-form {
+    padding: 24px 12px;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-container">
+      <a href="{{ url_for('index') }}"><h1>Daily Drop</h1></a>
+    </div>
+  </nav>
+
+  <div class="checkout-container">
+    <!-- Order Summary -->
+    <div class="order-summary">
+      <h2>Order Summary</h2>
+      <div class="order-items" id="orderItems">
+        <!-- Order items will be loaded here -->
+      </div>
+      <div class="total-price">
+        <span>Total:</span>
+        <span id="orderTotal">Rs.0.00</span>
+      </div>
+    </div>
+
+    <!-- Checkout Form -->
+    <div class="checkout-form">
+      <h2>Checkout Details</h2>
+      <form id="checkoutForm" onsubmit="placeOrder(event)">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" class="form-input" id="fullName" required placeholder="John Doe">
+        </div>
+
+        <div class="form-group">
+          <label>Delivery Address</label>
+          <textarea class="form-input" id="address" rows="4" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" class="form-input" id="phone" required>
+        </div>
+
+        <div class="cod-section">
+          <div class="cod-icon">💵</div>
+          <h3>Cash on Delivery</h3>
+          <p>Pay when your order arrives</p>
+        </div>
+
+        <button type="submit" class="confirm-btn">Confirm Order</button>
+      </form>
+    </div>
+  </div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const total = calculateTotal(cart);
+    const orderItemsDiv = document.getElementById('orderItems');
+    const orderTotalSpan = document.getElementById('orderTotal');
+
+    orderItemsDiv.innerHTML = '';
+
+    if (cart.length === 0) {
+        orderItemsDiv.innerHTML = '<p>No items in cart</p>';
+        return;
+    }
+
+    cart.forEach(item => {
+        const itemHTML = `
+            <div class="order-item">
+                <img src="${item.image}" alt="${item.name}">
+                <div class="item-info">
+                    <h4>${item.name}</h4>
+                    <p>Quantity: ${item.quantity}</p>
+                    <p>Price: Rs.${item.price.toFixed(2)} each</p>
+                </div>
+            </div>
+        `;
+        orderItemsDiv.insertAdjacentHTML('beforeend', itemHTML);
+    });
+
+    orderTotalSpan.textContent = `Rs.${total.toFixed(2)}`;
+});
+
+function calculateTotal(items) {
+    return items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+}
+
+async function placeOrder(event) {
+    event.preventDefault();
+
+    // Get form values
+    const fullName = document.getElementById('fullName').value.trim();
+    const address = document.getElementById('address').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    // Validation
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(phone)) {
+        alert("Invalid phone number. It must be 10 digits and start with 6, 7, 8, or 9.");
+        return;
+    }
+
+    if (!fullName || !address || !phone) {
+        alert('Please fill in all required fields');
+        return;
+    }
+
+    if (cart.length === 0) {
+        alert('Your cart is empty!');
+        return;
+    }
+
+    try {
+    // In payment.html's script section
+const orderData = {
+    full_name: fullName,
+    phone_number: phone,
+    address: address,
+    products: cart.map(item => ({
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        image_path: item.image // Add image path
+    })),
+    total_amount: calculateTotal(cart)
+};
+
+        const response = await fetch('/place_order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(orderData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert('Order confirmed! You will receive your order in 10 to 15 mins.');
+            localStorage.removeItem('cart');
+            window.location.href = "{{ url_for('index') }}";
+        } else {
+            alert('Order failed: ' + (data.message || 'Please try again'));
+        }
+    } catch (error) {
+        console.error('Order error:', error);
+        alert('Something went wrong. Please check the console for details.');
+    }
+}
+</script>
+</body>
+</html>

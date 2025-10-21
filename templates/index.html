@@ -1,0 +1,2491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily drop - Quick Delivery E-commerce</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>/* Reset & Basic Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+body {
+  background: #f0fdf4; /* Light green background */
+  color: #333;
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(circle at 90% 10%, rgba(12, 131, 31, 0.05) 0%, transparent 20%),
+    radial-gradient(circle at 10% 80%, rgba(12, 131, 31, 0.05) 0%, transparent 20%);
+  z-index: -1;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+button {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Navigation */
+.navbar {
+  background: linear-gradient(135deg, #0c831f, #1fa82d); /* Green gradient */
+  color: #fff;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.navbar .logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.search-bar {
+  flex: 1;
+  margin: 0 20px;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 10px 15px;
+  border-radius: 30px;
+  border: none;
+  font-size: 1rem;
+  outline: none;
+  background: rgba(255,255,255,0.9);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.login-btn {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  padding: 10px 25px;
+  border-radius: 30px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.login-btn:hover {
+  background: rgba(255,255,255,0.25);
+  transform: translateY(-1px);
+}
+
+.cart-icon {
+  margin-left: 30px;
+  background-color: #0a6e1a; /* Dark green */
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 30px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s ease;
+}
+
+.cart-icon:hover {
+  background-color: #094d14; /* Darker green on hover */
+}
+
+.cart-icon #cart-count {
+  background: #ff4d4f;
+  color: #fff;
+  margin-left: 8px;
+  padding: 2px 6px;
+  border-radius: 50%;
+  font-size: 0.8rem;
+}
+
+.orders-link {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.orders-link:hover {
+  background: rgba(255,255,255,0.25);
+  transform: translateY(-1px);
+}
+
+/* Hero Slider */
+.hero-slider {
+  position: relative;
+  height: 80vh;
+  max-height: 800px;
+  overflow: hidden;
+  margin-top: 60px;
+  border-radius: 15px;
+  margin: 60px 20px 0;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+.slide {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transform: scale(0.98);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.slide.active {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.slide-content {
+  position: absolute;
+  bottom: 15%;
+  left: 8%;
+  color: white;
+  z-index: 2;
+  max-width: 600px;
+}
+
+.slide-content h2 {
+  font-size: 3.5rem;
+  white-space: nowrap;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.slide-content p {
+  font-size: 1.4rem;
+  white-space: nowrap;
+  max-width: 90%;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.slide-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #0c831f; /* Primary green */
+  color: white;
+  padding: 15px 35px;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  transform: translateY(50px);
+  opacity: 0;
+  transition: all 0.6s ease 0.7s;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.slide.active .slide-btn {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.slide-btn:hover {
+  background: #0a6e1a; /* Dark green */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+}
+
+.slider-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 2rem;
+  z-index: 2;
+}
+
+.slider-arrow {
+  background: rgba(255,255,255,0.15);
+  color: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  backdrop-filter: blur(5px);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+}
+
+.slider-arrow:hover {
+  background: rgba(255,255,255,0.25);
+  transform: scale(1.1);
+}
+
+.slider-dots {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 2;
+}
+
+.dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.dot.active {
+  background: #0c831f; /* Primary green */
+  transform: scale(1.2);
+}
+
+.slide::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0.4), rgba(0,0,0,0.1));
+}
+
+/* Categories Section */
+.categories-section {
+  padding: 40px 20px;
+  background: #fff;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: #0c831f; /* Primary green */
+}
+
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+  padding: 0 20px;
+}
+
+.category-card {
+  display: block;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  color: #333;
+  border: 1px solid #e9f9ec; /* Light green border */
+}
+
+.category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  border-color: #0c831f; /* Green border on hover */
+}
+
+.image-container {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.category-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.category-card:hover img {
+  transform: scale(1.05);
+}
+
+.category-card h3 {
+  padding: 15px;
+  text-align: center;
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: 600;
+  background: #e9f9ec; /* Light green background */
+  transition: background 0.3s ease;
+}
+
+.category-card:hover h3 {
+  background: #d0f0d6; /* Slightly darker green on hover */
+}
+/* Full-width, responsive, visually modern product section */
+
+.products-container {
+  width: 100vw;
+  max-width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  padding: 0;
+  background: none;
+}
+
+.products-title {
+  font-size: 2.3rem;
+  margin: 32px 0 22px;
+  text-align: center;
+  color: #0a6e1a;
+  letter-spacing: 0.02em;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 22px 24px;
+  padding: 0 32px 32px;
+}
+
+/* Cards touch edges softly at large widths, with subtle shadow and hover effect */
+.product-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  border: 1px solid #e9f9ec;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.18s, box-shadow 0.22s;
+}
+.product-card:hover {
+  transform: translateY(-5px) scale(1.025);
+  box-shadow: 0 6px 18px rgba(17, 127, 41, 0.11);
+  border-color: #13ab42;
+}
+
+/* Image stretches gently, adapts to mobile/desktop */
+.product-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  background: #f7faf7;
+}
+
+.product-details {
+  padding: 18px 14px 16px;
+}
+
+.product-title {
+  font-weight: 650;
+  font-size: 1.12rem;
+  margin-bottom: 5px;
+  color: #212b23;
+}
+.product-category {
+  color: #87a78c;
+  font-size: 0.92rem;
+  margin-bottom: 10px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.product-pricing {
+  display: flex;
+  gap: 9px;
+  font-size: 1.12rem;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.current-price {
+  color: #0c831f;
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+.original-price {
+  color: #b7b7b7;
+  text-decoration: line-through;
+  font-size: 0.96rem;
+}
+.discount {
+  background: #0c831f;
+  color: #fff;
+  padding: 2.5px 8px;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.add-to-cart-btn {
+  background: linear-gradient(135deg, #11ab42 60%, #198c32 100%);
+  color: #fff;
+  padding: 13px 0;
+  border-radius: 20px;
+  width: 100%;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 1.03rem;
+  margin-top: 8px;
+  transition: background 0.24s;
+  box-shadow: 0 1.5px 7px rgba(16, 156, 54, 0.08);
+}
+.add-to-cart-btn:hover {
+  background: #0a6e1a;
+}
+
+@media (max-width: 1280px) {
+  .products-grid {
+    padding: 0 10px 22px;
+  }
+}
+@media (max-width: 768px) {
+  .products-container {
+    margin-left: 0; margin-right: 0; width: 100vw; max-width: 100vw;
+  }
+  .products-grid {
+    grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+    gap: 16px;
+    padding: 0 2vw 16px;
+  }
+  .products-title {
+    font-size: 1.25rem;
+    margin: 25px 0 10px;
+  }
+}
+@media (max-width: 460px) {
+  .products-grid {
+    grid-template-columns: 1fr;
+    padding: 0 0 12px;
+  }
+  .product-details {
+    padding: 14px 8px 10px;
+  }
+}
+
+/* Scroll to Top */
+.scroll-to-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: linear-gradient(135deg, #0c831f, #1fa82d); /* Green gradient */
+  color: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.scroll-to-top:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+}
+
+.scroll-to-top.show {
+  display: flex;
+}
+.footer {
+  background: #2d2d2d;
+  color: #fff;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  font-size: 16px;
+  padding: 52px 0 0 0;
+}
+
+.footer .container {
+  max-width: 1600px;                /* Wider max-width for large screens */
+  margin: 0 auto;
+  padding: 0 3vw;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 48px 40px;                   /* Increased gap for wide screens */
+  padding-bottom: 42px;
+}
+
+.footer-column {
+  min-width: 0;
+}
+
+.footer-title {
+  font-size: 1.25rem;
+  margin-bottom: 17px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  position: relative;
+  padding-bottom: 5px;
+}
+.footer-title::after {
+  content: "";
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 40px; height: 3px;
+  background: #13ab42;
+}
+.footer-description {
+  margin-top: 0;
+  margin-bottom: 0;
+  color: #ddd;
+  font-weight: 400;
+  line-height: 1.7;
+  max-width: 290px;
+}
+
+.footer-links, .footer-contact {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.footer-links li, .footer-contact li {
+  margin-bottom: 14px;
+  line-height: 1.7;
+}
+.footer-links a {
+  color: #eee;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-links a:hover {
+  color: #13ab42;
+}
+
+.footer-contact i {
+  margin-right: 8px;
+  color: #39d471;
+  font-size: 1rem;
+}
+
+.footer-bottom {
+  border-top: 1px solid #444;
+  margin-top: 22px;
+  padding: 23px 0;
+  text-align: center;
+  color: #bbb;
+  font-size: 1rem;
+}
+
+/* Responsive Layouts */
+@media (max-width: 1120px) {
+  .footer .container { max-width: 98vw; }
+  .footer-grid { gap: 32px 16px; }
+}
+@media (max-width: 900px) {
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px 18px; }
+  .footer-column { margin-bottom: 10px; }
+}
+@media (max-width: 600px) {
+  .footer .container { padding: 0 5vw; }
+  .footer-grid { grid-template-columns: 1fr; gap: 19px 0; }
+  .footer-title { font-size: 1.1rem; }
+  .footer-bottom { font-size: 0.96rem; padding: 16px 0; }
+}
+
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+  .slide-content h2 { font-size: 3rem; }
+  .slide-content p { font-size: 1.2rem; }
+  .products-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+}
+
+@media (max-width: 992px) {
+  .slide-content h2 { font-size: 2.5rem; }
+  .slide-content p { font-size: 1.1rem; }
+  .products-grid { grid-template-columns: repeat(3, 1fr); }
+  .categories-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+}
+
+@media (max-width: 768px) {
+  .hero-slider { height: 60vh; margin: 60px 10px 0; }
+  .slide-content h2 { font-size: 2rem; }
+  .slide-content p { font-size: 1rem; }
+  .slide-btn { padding: 12px 25px; font-size: 1rem; }
+  .slider-arrow { width: 40px; height: 40px; font-size: 1.2rem; }
+  .products-grid { grid-template-columns: repeat(2, 1fr); }
+  .categories-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+  .image-container { height: 160px; }
+  .nav-actions { gap: 15px; }
+  .login-btn { padding: 8px 18px; font-size: 0.9rem; }
+}
+
+@media (max-width: 480px) {
+  .slide-content h2 { font-size: 1.8rem; }
+  .slide-content p { display: none; }
+  .slide-btn { padding: 10px 20px; font-size: 0.9rem; }
+  .search-bar { margin: 0 10px; }
+  .products-grid { grid-template-columns: 1fr; }
+  .categories-grid { grid-template-columns: 1fr; }
+  .image-container { height: 200px; }
+  .section-title { font-size: 1.5rem; }
+  .login-btn { display: none; }
+  .nav-actions { gap: 10px; }
+}
+  </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="logo">Daily drop</div>
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search for products..." />
+    </div>
+    <div class="nav-actions">
+        <!-- Conditional login/logout -->
+        {% if 'user_id' in session %}
+            <span class="welcome-text">Hi, {{ session['name'] }}</span>
+            <a href="{{ url_for('orders') }}" class="orders-link">My Orders</a>
+            <a href="{{ url_for('logout') }}" class="login-btn">Logout</a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="login-btn">Login</a>
+        {% endif %}
+    </div>
+          <!-- Always show cart button -->
+        <a href="{{ url_for('cart') }}" class="cart-icon">
+            My Cart <span id="cart-count">0</span>
+        </a>
+</nav>
+      <section class="search-results-container" style="display: none;">
+        <h2 class="products-title">Search Results</h2>
+        <div class="products-grid" id="search-results-grid"></div>
+      </section>
+  <!-- Hero Slider -->
+  <div class="hero-slider">
+    <div class="slide active">
+      <img src="/static/slider/Vegetables.png" alt="Vegetables">
+      <div class="slide-content">
+        <h2>Fresh veggies, great deals!</h2>
+        <p>Experience the finest, farm-fresh vegetables, rich in flavor and nutrition every day!</p>
+        <a href="{{ url_for('vegetables') }}" class="slide-btn">Explore Now</a>
+      </div>
+    </div>
+    <div class="slide">
+      <img src="/static/slider/dairy and breakfast.png" alt="Dairy and Breakfast">
+      <div class="slide-content">
+        <h2>Fresh dairy, perfect breakfasts!</h2>
+        <p>Discover rich, creamy dairy products and wholesome breakfast essentials to start your day right!</p>
+        <a href="{{ url_for('dairy_breakfast') }}" class="slide-btn">See What's Fresh</a>
+      </div>
+    </div>
+    <div class="slide">
+      <img src="/static/slider/snacks and beverages.png" alt="Snacks and Beverages">
+      <div class="slide-content">
+        <h2>Delicious snacks, refreshing beverages!</h2>
+        <p>Indulge in tasty snacks and refreshing beverages that are perfect for any time of the day!</p>
+        <a href="{{ url_for('snacks_beverages') }}" class="slide-btn">Find Your Favorites</a>
+      </div>
+    </div>
+    <div class="slide">
+      <img src="/static/slider/babycare.png" alt="Babycare">
+      <div class="slide-content">
+        <h2>Gentle care for your little one!</h2>
+        <p>Discover premium baby care products that nurture and protect your baby's delicate skin and health.</p>
+        <a href="{{ url_for('baby_care') }}" class="slide-btn">Shop Now</a>
+      </div>
+    </div>
+    <div class="slider-nav">
+      <button class="slider-arrow prev">←</button>
+      <button class="slider-arrow next">→</button>
+    </div>
+    <div class="slider-dots"></div>
+  </div>
+
+
+  <!-- Categories Section -->
+<section class="categories-section">
+  <div class="container">
+    <h2 class="section-title">Shop by Category</h2>
+    <div class="categories-grid">
+      <!-- Fruits & Vegetables -->
+      <a href="{{ url_for('vegetables') }}" class="category-card">
+        <div class="image-container">
+          <img src="/static/image/vegetables.jpg" alt="Fruits & Vegetables">
+        </div>
+        <h3>Fruits & Vegetables</h3>
+      </a>
+
+      <!-- Dairy & Breakfast -->
+      <a href="{{ url_for('dairy_breakfast') }}" class="category-card">
+        <div class="image-container">
+          <img src="/static/image/dairy.jpg" alt="Dairy & Breakfast">
+        </div>
+        <h3>Dairy & Breakfast</h3>
+      </a>
+
+            <!-- Snacks & Beverages -->
+      <a href="{{ url_for('snacks_beverages') }}" class="category-card">
+        <div class="image-container">
+          <img src="/static/image/snaks.jpeg" alt="Snacks & Beverages">
+        </div>
+        <h3>Snacks & Beverages</h3>
+      </a>
+
+
+      <!-- Baby Care -->
+      <a href="{{ url_for('baby_care') }}" class="category-card">
+        <div class="image-container">
+          <img src="/static/image/baby.png" alt="Baby Care">
+        </div>
+        <h3>Baby Care</h3>
+      </a>
+
+
+
+
+      <!-- Personal Care -->
+      <a href="{{ url_for('personal_care') }}" class="category-card">
+        <div class="image-container">
+          <img src="/static/image/personalcare.jpg" alt="Personal Care">
+        </div>
+        <h3>Personal Care</h3>
+      </a>
+
+      <!-- Household Items -->
+      <a href="{{ url_for('household_items') }}" class="category-card">
+        <div class="image-container">
+          <img src="/static/image/household.jpeg" alt="Household Items">
+        </div>
+        <h3>Household Items</h3>
+      </a>
+
+
+
+      <!-- Home & Kitchen -->
+      <a href="{{ url_for('home_kitchen') }}" class="category-card">
+        <div class="image-container">
+          <img src="/static/image/kitchen.jpeg" alt="Home & Kitchen">
+        </div>
+        <h3>Home & Kitchen</h3>
+      </a>
+
+            <!-- Electronics -->
+      <a href="{{ url_for('grocery') }}" class="category-card">
+        <div class="image-container">
+          <img src="/static/image/grocery.jpeg" alt="Grocery">
+        </div>
+        <h3>Grocery</h3>
+      </a>
+
+
+    </div>
+  </div>
+</section>
+<br>
+<br><section class="products-container active" id="all">
+  <h2 class="products-title">Popular Products</h2>
+  <div class="products-grid">
+
+    <!-- Tomato -->
+    <div class="product-card" data-title="Tomato" data-category="Fruits & Vegetables">
+      <img src="/static/FruitsandVegetables/Tomato.jpg" alt="Tomato" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Tomato (1kg)</div>
+        <div class="product-category">Fruits & Vegetables</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.50</span>
+          <span class="original-price">Rs.63</span>
+          <span class="discount">20% OFF</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Tomato', 50, '/static/FruitsandVegetables/Tomato.jpg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Brinjal -->
+    <div class="product-card" data-title="Brinjal" data-category="Fruits & Vegetables">
+      <img src="/static/FruitsandVegetables/Brinjal.jpeg" alt="Brinjal" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Brinjal (1kg)</div>
+        <div class="product-category">Fruits & Vegetables</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.50</span>
+          <span class="original-price">Rs.63</span>
+          <span class="discount">20% OFF</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Brinjal', 50, '/static/FruitsandVegetables/Brinjal.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Apples -->
+    <div class="product-card" data-title="Apples" data-category="Fruits & Vegetables">
+      <img src="/static/FruitsandVegetables/Apples.jpeg" alt="Apples" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Apples (1kg)</div>
+        <div class="product-category">Fruits & Vegetables</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.70</span>
+          <span class="original-price">Rs.88</span>
+          <span class="discount">20% OFF</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Apples', 70, '/static/FruitsandVegetables/Apples.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Capsicum -->
+    <div class="product-card" data-title="Capsicum" data-category="Fruits & Vegetables">
+      <img src="/static/FruitsandVegetables/Capsicum.jpeg" alt="Capsicum" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Capsicum (1kg)</div>
+        <div class="product-category">Fruits & Vegetables</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.40</span>
+          <span class="original-price">Rs.50</span>
+          <span class="discount">20% OFF</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Capsicum', 40, '/static/FruitsandVegetables/Capsicum.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Cauliflower -->
+    <div class="product-card" data-title="Cauliflower" data-category="Fruits & Vegetables">
+      <img src="/static/FruitsandVegetables/Cauliflower.jpeg" alt="Cauliflower" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Cauliflower (1 pc)</div>
+        <div class="product-category">Fruits & Vegetables</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.60</span>
+          <span class="original-price">Rs.75</span>
+          <span class="discount">20% OFF</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Cauliflower', 60, '/static/FruitsandVegetables/Cauliflower.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Brocolli -->
+    <div class="product-card" data-title="Brocolli" data-category="Fruits & Vegetables">
+      <img src="/static/FruitsandVegetables/Brocolli.jpeg" alt="Brocolli" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Brocolli (1 pc)</div>
+        <div class="product-category">Fruits & Vegetables</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.40</span>
+          <span class="original-price">Rs.50</span>
+          <span class="discount">20% OFF</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Brocolli', 40, '/static/FruitsandVegetables/Brocolli.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Pineapple -->
+    <div class="product-card" data-title="Pineapple" data-category="Fruits & Vegetables">
+      <img src="/static/FruitsandVegetables/Pineapple.jpeg" alt="Pineapple" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Pineapple (1 pc)</div>
+        <div class="product-category">Fruits & Vegetables</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.60</span>
+          <span class="original-price">Rs.75</span>
+          <span class="discount">20% OFF</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Pineapple', 60, '/static/FruitsandVegetables/Pineapple.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Kiwi (premium) -->
+    <div class="product-card" data-title="Kiwi" data-category="Fruits & Vegetables">
+      <img src="/static/FruitsandVegetables/Kiwi.jpeg" alt="Kiwi" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Kiwi (Premium, 500g)</div>
+        <div class="product-category">Fruits & Vegetables</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.100</span>
+          <span class="original-price">Rs.125</span>
+          <span class="discount">20% OFF</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Kiwi', 100, '/static/FruitsandVegetables/Kiwi.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Green apple -->
+    <div class="product-card" data-title="Green apple" data-category="Fruits & Vegetables">
+      <img src="/static/FruitsandVegetables/Green apple.jpeg" alt="Green apple" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Green Apple (1kg)</div>
+        <div class="product-category">Fruits & Vegetables</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.40</span>
+          <span class="original-price">Rs.50</span>
+          <span class="discount">20% OFF</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Green apple', 40, '/static/FruitsandVegetables/Green apple.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Bananas -->
+    <div class="product-card" data-title="Bananas" data-category="Fruits & Vegetables">
+      <img src="/static/FruitsandVegetables/Bananas.jpeg" alt="Bananas" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Bananas (1 dozen)</div>
+        <div class="product-category">Fruits & Vegetables</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.40</span>
+          <span class="original-price">Rs.50</span>
+          <span class="discount">20% OFF</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Bananas', 40, '/static/FruitsandVegetables/Bananas.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Blueberry Cinnamon Flax (Dairy & Breakfast) -->
+<div class="product-card" data-title="Blueberry cinnamon flax" data-category="Dairy & Breakfast">
+  <img src="/static/Dairy and breakfast/Blueberry cinnamon flax.jpeg" alt="Blueberry cinnamon flax" class="product-image" />
+  <div class="product-details">
+    <div class="product-title">Blueberry Cinnamon Flax (1 pack)</div>
+    <div class="product-category">Dairy & Breakfast</div>
+    <div class="product-pricing">
+      <span class="current-price">Rs.50</span>
+    </div>
+    <button class="add-to-cart-btn" onclick="addToCart('Blueberry cinnamon flax', 50, '/static/Dairy and breakfast/Blueberry cinnamon flax.jpeg')">ADD</button>
+  </div>
+</div>
+
+<!-- Chopper (Home and Kitchen) -->
+<div class="product-card" data-title="Chopper" data-category="Home and Kitchen">
+  <img src="/static/kitchen/Chopper.jpeg" alt="Chopper" class="product-image" />
+  <div class="product-details">
+    <div class="product-title">Vegetable Chopper</div>
+    <div class="product-category">Home and Kitchen</div>
+    <div class="product-pricing">
+      <span class="current-price">Rs.250</span>
+    </div>
+    <button class="add-to-cart-btn" onclick="addToCart('Chopper', 250, '/static/kitchen/Chopper.jpeg')">ADD</button>
+  </div>
+</div>
+
+<!-- Fairy (House Hold) -->
+<div class="product-card" data-title="Fairy" data-category="House Hold">
+  <img src="/static/household/Fairy.jpeg" alt="Fairy" class="product-image" />
+  <div class="product-details">
+    <div class="product-title">Fairy Dishwash Liquid (500ml)</div>
+    <div class="product-category">House Hold</div>
+    <div class="product-pricing">
+      <span class="current-price">Rs.90</span>
+    </div>
+    <button class="add-to-cart-btn" onclick="addToCart('Fairy', 90, '/static/household/Fairy.jpeg')">ADD</button>
+  </div>
+</div>
+
+<!-- Baby Biscuits (Baby Care) -->
+<div class="product-card" data-title="Baby biscuits" data-category="Baby Care">
+  <img src="/static/Baby Care/Baby biscuits.jpeg" alt="Baby biscuits" class="product-image" />
+  <div class="product-details">
+    <div class="product-title">Baby Biscuits (1 pack)</div>
+    <div class="product-category">Baby Care</div>
+    <div class="product-pricing">
+      <span class="current-price">Rs.75</span>
+    </div>
+    <button class="add-to-cart-btn" onclick="addToCart('Baby biscuits', 75, '/static/Baby Care/Baby biscuits.jpeg')">ADD</button>
+  </div>
+</div>
+
+
+    <!-- Amul Lassi -->
+    <div class="product-card" data-title="Amul lassi" data-category="Dairy & Breakfast">
+      <img src="/static/Dairy and breakfast/Amul lassi.jpeg" alt="Amul lassi" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Amul Lassi (1 unit)</div>
+        <div class="product-category">Dairy & Breakfast</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.20</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Amul lassi', 20, '/static/Dairy and breakfast/Amul lassi.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Milk -->
+    <div class="product-card" data-title="Milk" data-category="Dairy & Breakfast">
+      <img src="/static/Dairy and breakfast/Milk.webp" alt="Milk" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Milk (500ml)</div>
+        <div class="product-category">Dairy & Breakfast</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.20</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Milk', 20, '/static/Dairy and breakfast/Milk.webp')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Bread -->
+    <div class="product-card" data-title="Bread" data-category="Dairy & Breakfast">
+      <img src="/static/Dairy and breakfast/Bread.jpeg" alt="Bread" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Bread (400g)</div>
+        <div class="product-category">Dairy & Breakfast</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.50</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Bread', 50, '/static/Dairy and breakfast/Bread.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Butter -->
+    <div class="product-card" data-title="Butter" data-category="Dairy & Breakfast">
+      <img src="/static/Dairy and breakfast/Butter.jpeg" alt="Butter" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Butter (100g)</div>
+        <div class="product-category">Dairy & Breakfast</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.50</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Butter', 50, '/static/Dairy and breakfast/Butter.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Cheese slice -->
+    <div class="product-card" data-title="Cheese slice" data-category="Dairy & Breakfast">
+      <img src="/static/Dairy and breakfast/Cheese slice.jpeg" alt="Cheese slice" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Cheese Slice (5 pcs)</div>
+        <div class="product-category">Dairy & Breakfast</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.70</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Cheese slice', 70, '/static/Dairy and breakfast/Cheese slice.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Gulab Jamun -->
+    <div class="product-card" data-title="Gulab jamun" data-category="Dairy & Breakfast">
+      <img src="/static/Dairy and breakfast/Gulab jamun.jpeg" alt="Gulab jamun" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Gulab Jamun (250g)</div>
+        <div class="product-category">Dairy & Breakfast</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.75</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Gulab jamun', 75, '/static/Dairy and breakfast/Gulab jamun.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Horlicks -->
+    <div class="product-card" data-title="Horlicks" data-category="Dairy & Breakfast">
+      <img src="/static/Dairy and breakfast/Horlicks.jpeg" alt="Horlicks" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Horlicks (200g)</div>
+        <div class="product-category">Dairy & Breakfast</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.55</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Horlicks', 55, '/static/Dairy and breakfast/Horlicks.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Dove soap (Personal Care) -->
+    <div class="product-card" data-title="Dove soap" data-category="personal care">
+      <img src="/static/personal care/Dove soap.jpeg" alt="Dove soap" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Dove Soap (100g)</div>
+        <div class="product-category">Personal Care</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.50</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Dove soap', 50, '/static/personal care/Dove soap.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Face mask (Personal Care) -->
+    <div class="product-card" data-title="Facemask" data-category="personal care">
+      <img src="/static/personal care/facemask.jpeg" alt="Facemask" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Face Mask (Pack of 2)</div>
+        <div class="product-category">Personal Care</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.100</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Facemask', 100, '/static/personal care/facemask.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Colgate toothpaste -->
+    <div class="product-card" data-title="Colgate toothpast" data-category="personal care">
+      <img src="/static/personal care/Colgate toothpast.jpeg" alt="Colgate toothpaste" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Colgate Toothpaste (100g)</div>
+        <div class="product-category">Personal Care</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.70</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Colgate toothpast', 70, '/static/personal care/Colgate toothpast.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Kitkat (Snacks) -->
+    <div class="product-card" data-title="Kitkat" data-category="Snacks and Beverages">
+      <img src="/static/Snacks/Kitkat.jpeg" alt="Kitkat" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Kitkat (1 bar)</div>
+        <div class="product-category">Snacks & Beverages</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.20</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Kitkat', 20, '/static/Snacks/Kitkat.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Kurkure (Snacks) -->
+    <div class="product-card" data-title="Kurkure" data-category="Snacks and Beverages">
+      <img src="/static/Snacks/Kurkure.jpeg" alt="Kurkure" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Kurkure (100g)</div>
+        <div class="product-category">Snacks & Beverages</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.20</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Kurkure', 20, '/static/Snacks/Kurkure.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Fanta -->
+    <div class="product-card" data-title="Fanta" data-category="Snacks and Beverages">
+      <img src="/static/Snacks/Fanta.jpeg" alt="Fanta" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Fanta (350ml)</div>
+        <div class="product-category">Snacks & Beverages</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.50</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Fanta', 50, '/static/Snacks/Fanta.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Pampers (Baby Care) -->
+    <div class="product-card" data-title="Pampers" data-category="Baby Care">
+      <img src="/static/Baby Care/Pampers.jpeg" alt="Pampers" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Pampers (Small Pack)</div>
+        <div class="product-category">Baby Care</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.200</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Pampers', 200, '/static/Baby Care/Pampers.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Jeera Powder (Grocery) -->
+    <div class="product-card" data-title="Jeera powder" data-category="Grocery">
+      <img src="/static/Grocery/Jeera powder.jpeg" alt="Jeera Powder" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Jeera Powder (200g)</div>
+        <div class="product-category">Grocery</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.250</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Jeera powder', 250, '/static/Grocery/Jeera powder.jpeg')">ADD</button>
+      </div>
+    </div>
+
+    <!-- Attack (House Hold) -->
+    <div class="product-card" data-title="Attack" data-category="House Hold">
+      <img src="/static/household/Attack.jpeg" alt="Attack" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">Attack Detergent (500g)</div>
+        <div class="product-category">House Hold</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.200</span>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart('Attack', 200, '/static/household/Attack.jpeg')">ADD</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+  <button class="scroll-to-top" onclick="scrollToTop()">↑</button>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- Column 1 - Brand Info -->
+      <div class="footer-column">
+        <h3 class="footer-title">Daily drop</h3>
+        <p class="footer-description">Your one-stop solution for quick delivery of daily essentials and more.</p>
+      </div>
+
+      <!-- Column 2 - Quick Links -->
+      <div class="footer-column">
+        <h3 class="footer-title">Quick Links</h3>
+        <ul class="footer-links">
+          <li><a href="{{ url_for('about_us') }}">About Us</a></li>
+          <li><a href="{{ url_for('contact_us') }}">Contact Us</a></li>
+          <li><a href="{{ url_for('faqs') }}">FAQs</a></li>
+          <li><a href="{{ url_for('terms_signup_home') }}">Terms & Conditions</a></li>
+          <li><a href="{{ url_for('privacy_policy_signup_home') }}">Privacy Policy</a></li>
+        </ul>
+      </div>
+
+      <!-- Column 3 - Categories -->
+      <div class="footer-column">
+        <h3 class="footer-title">Categories</h3>
+        <ul class="footer-links">
+          <li><a href="{{ url_for('grocery') }}">Groceries</a></li>
+          <li><a href="{{ url_for('personal_care') }}">Personal Care</a></li>
+          <li><a href="{{ url_for('household_items') }}">Household Items</a></li>
+          <li><a href="{{ url_for('home_kitchen') }}">Home & Kitchen</a></li>
+          <li><a href="{{ url_for('baby_care') }}">Baby Products</a></li>
+        </ul>
+      </div>
+
+      <!-- Column 4 - Contact Info -->
+      <div class="footer-column">
+        <h3 class="footer-title">Contact Us</h3>
+        <ul class="footer-contact">
+          <li><i class="fas fa-map-marker-alt"></i>Horticulture,chitradurga</li>
+          <li><i class="fas fa-phone"></i>+91 78292 83748</li>
+          <li><i class="fas fa-envelope"></i>support@dailydrop.com</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2025 Daily drop. All Rights Reserved.</p>
+    </div>
+  </div>
+</footer>
+
+
+
+<script>
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+cart = cart.map(item => ({
+  ...item,
+  quantity: Number(item.quantity) || 1
+}));
+localStorage.setItem('cart', JSON.stringify(cart));
+// Add this to index.html's script
+window.addEventListener('storage', () => {
+  updateCartCount();
+});
+
+function addToCart(productName, productPrice, productImage) {
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const existingItem = cart.find(item => item.name === productName);
+
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        cart.push({
+            name: productName,
+            price: productPrice,
+            image: productImage,
+            quantity: 1
+        });
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCartCount();
+    showAddedToCartAlert(productName);
+}
+// Modify the updateCartCount() function in both pages to be identical
+function updateCartCount() {
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  const count = cart.reduce((total, item) => total + (item.quantity || 1), 0);
+  document.getElementById('cart-count').textContent = count;
+}
+
+
+    // Slider Functionality
+    const slides = document.querySelectorAll('.slide');
+    const dotsContainer = document.querySelector('.slider-dots');
+    const prevButton = document.querySelector('.prev');
+    const nextButton = document.querySelector('.next');
+    let currentSlide = 0;
+    let autoSlideInterval;
+
+    // Create dots
+    slides.forEach((_, index) => {
+      const dot = document.createElement('div');
+      dot.classList.add('dot');
+      if (index === 0) dot.classList.add('active');
+      dot.addEventListener('click', () => goToSlide(index));
+      dotsContainer.appendChild(dot);
+    });
+
+    function goToSlide(index) {
+      slides[currentSlide].classList.remove('active');
+      dotsContainer.children[currentSlide].classList.remove('active');
+      currentSlide = (index + slides.length) % slides.length;
+      slides[currentSlide].classList.add('active');
+      dotsContainer.children[currentSlide].classList.add('active');
+    }
+
+    function nextSlide() {
+      goToSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      goToSlide(currentSlide - 1);
+    }
+
+    prevButton.addEventListener('click', prevSlide);
+    nextButton.addEventListener('click', nextSlide);
+
+    function startAutoSlide() {
+      autoSlideInterval = setInterval(nextSlide, 2500);
+    }
+
+    function stopAutoSlide() {
+      clearInterval(autoSlideInterval);
+    }
+
+    const heroSlider = document.querySelector('.hero-slider');
+    startAutoSlide();
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') prevSlide();
+      if (e.key === 'ArrowRight') nextSlide();
+    });
+
+
+// Search Functionality
+const searchInput = document.getElementById('searchInput');
+const searchResultsContainer = document.querySelector('.search-results-container');
+const searchResultsGrid = document.getElementById('search-results-grid');
+const allSections = document.querySelectorAll('.hero-slider, .categories-section, .products-container');
+const allProducts = document.querySelectorAll('.product-card');
+
+// Replace existing search functionality with this
+searchInput.addEventListener('input', function() {
+  const searchTerm = this.value.trim().toLowerCase();
+  searchResultsGrid.innerHTML = '';
+
+  if (!searchTerm) {
+    searchResultsContainer.style.display = 'none';
+    allSections.forEach(section => section.style.display = '');
+    document.querySelector('.products-container.active').style.display = 'block';
+    return;
+  }
+
+  allSections.forEach(section => section.style.display = 'none');
+  searchResultsContainer.style.display = 'block';
+
+  const filteredProducts = window.productsDB.filter(product =>
+    product.title.toLowerCase().includes(searchTerm)
+  );
+
+  if (filteredProducts.length === 0) {
+    searchResultsGrid.innerHTML = `
+      <div class="no-results">
+        <i class="fas fa-search"></i>
+        <p>No products found for "${searchTerm}"</p>
+      </div>
+    `;
+    return;
+  }
+
+  filteredProducts.forEach(product => {
+    const productCard = document.createElement('div');
+    productCard.className = 'product-card';
+    productCard.innerHTML = `
+      <img src="${product.image}" alt="${product.title}" class="product-image" />
+      <div class="product-details">
+        <div class="product-title">${product.title}</div>
+        <div class="product-category">${product.category}</div>
+        <div class="product-pricing">
+          <span class="current-price">Rs.${product.price}</span>
+          ${product.discount ? `
+            <span class="original-price">Rs.${Math.round(product.price/(1-product.discount/100))}</span>
+            <span class="discount">${product.discount}% OFF</span>
+          ` : ''}
+        </div>
+        <button class="add-to-cart-btn">ADD</button>
+      </div>
+    `;
+
+    // Add click handler for dynamically created buttons
+    productCard.querySelector('.add-to-cart-btn').addEventListener('click', () => {
+      addToCart(product.title, product.price, product.image);
+    });
+
+    searchResultsGrid.appendChild(productCard);
+  });
+});
+
+// Category Filtering
+const categories = document.querySelectorAll('.category-card');
+const productContainers = document.querySelectorAll('.products-container');
+
+// Scroll to Top
+const scrollButton = document.querySelector('.scroll-to-top');
+
+window.addEventListener('scroll', () => {
+  window.pageYOffset > 300
+    ? scrollButton.classList.add('show')
+    : scrollButton.classList.remove('show');
+});
+
+scrollButton.addEventListener('click', scrollToTop);
+
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+}
+
+// Initialize cart count on page load
+function initializeCart() {
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const count = cart.reduce((total, item) => total + (item.quantity || 1), 0);
+    document.getElementById('cart-count').textContent = count;
+}
+
+// Call this when the page loads
+document.addEventListener('DOMContentLoaded', initializeCart);
+
+// Initialize cart count on page load
+updateCartCount();
+  </script>
+
+<script>
+// products-database.js
+window.productsDB = [
+  // Trending Products (already visible)
+  {
+    id: 1,
+    title: "Tomato",
+    category: "Fruits & Vegetables",
+    price: 50,
+    image: "/static/FruitsandVegetables/Tomato.jpg",
+    discount: 20
+  },
+    {
+    id: 2,
+    title: "Brinjal",
+    category: "Fruits & Vegetables",
+    price: 50,
+    image: "/static/FruitsandVegetables/Brinjal.jpeg",
+    discount: 20
+  },
+     {
+    id: 3,
+    title: "Apples",
+    category: "Fruits & Vegetables",
+    price: 70,
+    image: "/static/FruitsandVegetables/Apples.jpeg",
+    discount: 20
+  },
+
+     {
+    id: 4,
+    title: "Capsicum",
+    category: "Fruits & Vegetables",
+    price: 40,
+    image: "/static/FruitsandVegetables/Capsicum.jpeg",
+    discount: 20
+  },
+   {
+    id: 5,
+    title: "Fenugreek",
+    category: "Fruits & Vegetables",
+    price: 70,
+    image: "/static/FruitsandVegetables/Fenugreek.jpeg",
+    discount: 20
+  },
+  {
+    id: 6,
+    title: "Cauliflower",
+    category: "Fruits & Vegetables",
+    price: 60,
+    image: "/static/FruitsandVegetables/Cauliflower.jpeg",
+    discount: 20
+  },
+    {
+    id: 7,
+    title: "Cucumber",
+    category: "Fruits & Vegetables",
+    price: 50,
+    image: "/static/FruitsandVegetables/Cucumber.jpeg",
+    discount: 20
+  },
+      {
+    id: 8,
+    title: "cabbages",
+    category: "Fruits & Vegetables",
+    price: 40,
+    image: "/static/FruitsandVegetables/cabbages.jpeg",
+    discount: 20
+  },
+   {
+    id: 9,
+    title: "Coconut",
+    category: "Fruits & Vegetables",
+    price: 60,
+    image: "/static/FruitsandVegetables/Coconut.jpeg",
+    discount: 20
+  },
+     {
+    id: 10,
+    title: "Corn",
+    category: "Fruits & Vegetables",
+    price: 60,
+    image: "/static/FruitsandVegetables/Corn.jpeg",
+    discount: 20
+  },
+     {
+    id: 11,
+    title: "Dragon fruit",
+    category: "Fruits & Vegetables",
+    price: 60,
+    image: "/static/FruitsandVegetables/Dragon fruit.jpeg",
+    discount: 20
+  },
+       {
+    id: 12,
+    title: "Ladies finger",
+    category: "Fruits & Vegetables",
+    price: 60,
+    image: "/static/FruitsandVegetables/Ladies finger.jpeg",
+    discount: 20
+  },
+     {
+    id: 13,
+    title: "Brocolli",
+    category: "Fruits & Vegetables",
+    price: 40,
+    image: "/static/FruitsandVegetables/Brocolli.jpeg",
+    discount: 20
+  },
+       {
+    id: 14,
+    title: "Pineapple",
+    category: "Fruits & Vegetables",
+    price: 60,
+    image: "/static/FruitsandVegetables/Pineapple.jpeg",
+    discount: 20
+  },
+    {
+    id: 15,
+    title: "Papaya",
+    category: "Fruits & Vegetables",
+    price: 40,
+    image: "/static/FruitsandVegetables/Papaya.jpeg",
+    discount: 20
+  },
+      {
+    id: 16,
+    title: "Bananas",
+    category: "Fruits & Vegetables",
+    price: 40,
+    image: "/static/FruitsandVegetables/Bananas.jpeg",
+    discount: 20
+  },
+    {
+    id: 17,
+    title: "Black grapes",
+    category: "Fruits & Vegetables",
+    price: 70,
+    image: "/static/FruitsandVegetables/Black grapes.jpeg",
+    discount: 20
+  },
+      {
+    id: 18,
+    title: "Raw mangoes",
+    category: "Fruits & Vegetables",
+    price: 70,
+    image: "/static/FruitsandVegetables/Raw mangoes.jpeg",
+    discount: 20
+  },
+        {
+    id: 19,
+    title: "Passion fruit",
+    category: "Fruits & Vegetables",
+    price: 70,
+    image: "/static/FruitsandVegetables/Passion fruit.jpeg",
+    discount: 20
+  },
+          {
+    id: 20,
+    title: "Kiwi",
+    category: "Fruits & Vegetables",
+    price: 100,
+    image: "/static/FruitsandVegetables/Kiwi.jpeg",
+    discount: 20
+  },
+  {
+    id: 21,
+    title: "carombola",
+    category: "Fruits & Vegetables",
+    price: 100,
+    image: "/static/FruitsandVegetables/carombola.jpeg",
+    discount: 20
+  },
+  {
+    id: 22,
+    title: "Green apple",
+    category: "Fruits & Vegetables",
+    price: 40,
+    image: "/static/FruitsandVegetables/Green apple.jpeg",
+    discount: 20
+  },
+    {
+    id: 23,
+    title: "Promogranate",
+    category: "Fruits & Vegetables",
+    price: 40,
+    image: "/static/FruitsandVegetables/Promogranate.jpeg",
+    discount: 20
+  },
+      {
+    id: 24,
+    title: "Watermelon",
+    category: "Fruits & Vegetables",
+    price: 40,
+    image: "/static/FruitsandVegetables/Watermelon.jpeg",
+    discount: 20
+  },
+        {
+    id: 25,
+    title: "Musk melon",
+    category: "Fruits & Vegetables",
+    price: 40,
+    image: "/static/FruitsandVegetables/Musk melon.jpeg",
+    discount: 20
+  },
+  {
+    id: 26,
+    title: "butter head lettuce",
+    category: "Fruits & Vegetables",
+    price: 60,
+    image: "/static/FruitsandVegetables/butter head lettuce.jpeg",
+    discount: 20
+  },
+  // Category Products (from other pages)
+  {
+    id: 27,
+    title: "Amul lassi",
+    category: "Dairy & Breakfast",
+    price: 20,
+    image: "/static/Dairy and breakfast/Amul lassi.jpeg",
+  },
+  {
+    id: 28,
+    title: "Milk",
+    category: "Dairy & Breakfast",
+    price: 20,
+    image: "/static/Dairy and breakfast/Milk.webp",
+  },
+    {
+    id: 29,
+    title: "egg",
+    category: "Dairy & Breakfast",
+    price: 100,
+    image: "/static/Dairy and breakfast/egg.jpeg",
+  },
+  {
+    id: 30,
+    title: "Badam drink milk",
+    category: "Dairy & Breakfast",
+    price: 30,
+    image: "/static/Dairy and breakfast/Badam drink milk.jpeg",
+  },
+  {
+    id: 31,
+    title: "Bread",
+    category: "Dairy & Breakfast",
+    price: 50,
+    image: "/static/Dairy and breakfast/Bread.jpeg",
+  },
+  {
+    id: 32,
+    title: "Brown bread",
+    category: "Dairy & Breakfast",
+    price: 50,
+    image: "/static/Dairy and breakfast/Brown bread.jpeg",
+  },
+  {
+    id: 33,
+    title: "Burger bun",
+    category: "Dairy & Breakfast",
+    price: 50,
+    image: "/static/Dairy and breakfast/Burger bun.jpeg",
+  },
+    {
+    id: 34,
+    title: "Blueberry cinnamon flax",
+    category: "Dairy & Breakfast",
+    price: 50,
+    image: "/static/Dairy and breakfast/Blueberry cinnamon flax.jpeg",
+  },
+      {
+    id: 35,
+    title: "Butter",
+    category: "Dairy & Breakfast",
+    price: 50,
+    image: "/static/Dairy and breakfast/Butter.jpeg",
+  },
+        {
+    id: 36,
+    title: "Cheese",
+    category: "Dairy & Breakfast",
+    price: 50,
+    image: "/static/Dairy and breakfast/Cheese.jpeg",
+  },
+   {
+    id: 37,
+    title: "Cheese slice ",
+    category: "Dairy & Breakfast",
+    price: 70,
+    image: "/static/Dairy and breakfast/Cheese slice.jpeg",
+  },
+     {
+    id: 38,
+    title: "Coca cola tin ",
+    category: "Dairy & Breakfast",
+    price: 40,
+    image: "/static/Dairy and breakfast/Coca cola tin.jpeg",
+  },
+       {
+    id: 39,
+    title: "Choco krispis",
+    category: "Dairy & Breakfast",
+    price: 40,
+    image: "/static/Dairy and breakfast/Choco krispis.jpeg",
+  },
+         {
+    id: 40,
+    title: "Coco pops",
+    category: "Dairy & Breakfast",
+    price: 40,
+    image: "/static/Dairy and breakfast/Coco pops.jpeg",
+  },
+   {
+    id: 41,
+    title: "COCONUT MILK",
+    category: "Dairy & Breakfast",
+    price: 40,
+    image: "/static/Dairy and breakfast/COCONUT MILK.jpeg",
+  },
+     {
+    id: 42,
+    title: "Cocopops chocos",
+    category: "Dairy & Breakfast",
+    price: 40,
+    image: "/static/Dairy and breakfast/Cocopops chocos.jpeg",
+  },
+       {
+    id: 43,
+    title: "Dabur honey",
+    category: "Dairy & Breakfast",
+    price: 40,
+    image: "/static/Dairy and breakfast/Dabur honey.jpeg",
+  },
+         {
+    id: 44,
+    title: "Eno",
+    category: "Dairy & Breakfast",
+    price: 10,
+    image: "/static/Dairy and breakfast/Eno.jpeg",
+  },
+          {
+    id: 45,
+    title: "Ghee",
+    category: "Dairy & Breakfast",
+    price: 40,
+    image: "/static/Dairy and breakfast/Ghee.jpeg",
+  },
+            {
+    id: 46,
+    title: "govind lassi",
+    category: "Dairy & Breakfast",
+    price: 40,
+    image: "/static/Dairy and breakfast/govind lassi.jpeg",
+  },
+            {
+    id: 47,
+    title: "Gulab jamun",
+    category: "Dairy & Breakfast",
+    price: 75,
+    image: "/static/Dairy and breakfast/Gulab jamun.jpeg",
+  },
+              {
+    id: 48,
+    title: "Honey",
+    category: "Dairy & Breakfast",
+    price: 40,
+    image: "/static/Dairy and breakfast/Honey.jpeg",
+  },
+                 {
+    id: 49,
+    title: "Jam",
+    category: "Dairy & Breakfast",
+    price: 25,
+    image: "/static/Dairy and breakfast/Jam.jpeg",
+  },
+        {
+    id: 50,
+    title: "Kissan jam",
+    category: "Dairy & Breakfast",
+    price: 25,
+    image: "/static/Dairy and breakfast/Kissan jam.jpeg",
+  },
+          {
+    id: 51,
+    title: "tea",
+    category: "Dairy & Breakfast",
+    price: 50,
+    image: "/static/Dairy and breakfast/tea.jpeg",
+  },
+            {
+    id: 52,
+    title: "Horlicks",
+    category: "Dairy & Breakfast",
+    price: 55,
+    image: "/static/Dairy and breakfast/Horlicks.jpeg",
+  },
+  {
+    id: 53,
+    title: "Mentos",
+    category: "Dairy & Breakfast",
+    price: 10,
+    image: "/static/Dairy and breakfast/Mentos.jpeg",
+  },
+  {
+    id: 54,
+    title: "Milkmade",
+    category: "Dairy & Breakfast",
+    price: 55,
+    image: "/static/Dairy and breakfast/Milkmade.jpeg",
+  },
+    {
+    id: 55,
+    title: "Nescafe",
+    category: "Dairy & Breakfast",
+    price: 25,
+    image: "/static/Dairy and breakfast/Nescafe.jpeg",
+  },
+      {
+    id: 56,
+    title: "Nut butter",
+    category: "Dairy & Breakfast",
+    price: 25,
+    image: "/static/Dairy and breakfast/Nut butter.jpeg",
+  },
+        {
+    id: 57,
+    title: "Oatmeal",
+    category: "Dairy & Breakfast",
+    price: 75,
+    image: "/static/Dairy and breakfast/Oatmeal.jpeg",
+  },
+   {
+    id: 58,
+    title: "Sweet yogurt",
+    category: "Dairy & Breakfast",
+    price: 75,
+    image: "/static/Dairy and breakfast/Sweet yogurt.jpeg",
+  },
+     {
+    id: 59,
+    title: "soup",
+    category: "Dairy & Breakfast",
+    price: 50,
+    image: "/static/Dairy and breakfast/soap.jpeg",
+  },
+       {
+    id: 60,
+    title: "yippee",
+    category: "Dairy & Breakfast",
+    price: 50,
+    image: "/static/Dairy and breakfast/yippe.jpeg",
+  },
+         {
+    id: 61,
+    title: "Rava dosa",
+    category: "Dairy & Breakfast",
+    price: 100,
+    image: "/static/Dairy and breakfast/Rava dosa.jpeg",
+  },
+           {
+    id: 62,
+    title: "Quaker oat",
+    category: "Dairy & Breakfast",
+    price: 80,
+    image: "/static/Dairy and breakfast/Quaker oat.jpeg",
+  },
+             {
+    id: 63,
+    title: "Maggie",
+    category: "Dairy & Breakfast",
+    price: 14,
+    image: "/static/Dairy and breakfast/Maggie.jpeg",
+  },
+               {
+    id: 64,
+    title: "Naturalla",
+    category: "Dairy & Breakfast",
+    price: 30,
+    image: "/static/Dairy and breakfast/Naturalla.jpeg",
+  },
+                 {
+    id: 65,
+    title: "Patanjali jam",
+    category: "Dairy & Breakfast",
+    price: 30,
+    image: "/static/Dairy and breakfast/Patanjali jam.jpeg",
+  },
+                   {
+    id: 66,
+    title: "Mozzarellla cheese",
+    category: "Dairy & Breakfast",
+    price: 30,
+    image: "/static/Dairy and breakfast/Mozzarellla cheese.jpeg",
+  },
+                     {
+    id: 67,
+    title: "Bournvita",
+    category: "Dairy & Breakfast",
+    price: 100,
+    image: "/static/Dairy and breakfast/Bournvita.jpeg",
+  },
+                       {
+    id: 68,
+    title: "Peanuts smoot",
+    category: "Dairy & Breakfast",
+    price: 30,
+    image: "/static/Dairy and breakfast/Peanuts smoot.jpeg",
+  },
+
+  {
+    id: 69,
+    title: "Peanuts smoot",
+    category: "Dairy & Breakfast",
+    price: 30,
+    image: "/static/Dairy and breakfast/Peanuts smoot.jpeg",
+  },
+  {
+    id: 70,
+    title: "Band aid",
+    category: "personal care",
+    price: 45,
+    image: "/static/personal care/Band aid.jpeg",
+  },
+  {
+    id: 71,
+    title: "Dove soap",
+    category: "personal care",
+    price: 50,
+    image: "/static/personal care/Dove soap.jpeg",
+  },
+  {
+    id: 72,
+    title: "Dove body wash",
+    category: "personal care",
+    price: 80,
+    image: "/static/personal care/Dove bodywash.jpeg",
+  },
+  {
+    id: 73,
+    title: "Face massager",
+    category: "personal care",
+    price: 30,
+    image: "/static/personal care/face massager.jpeg",
+  },
+  {
+    id: 74,
+    title: "Facemask",
+    category: "personal care",
+    price: 100,
+    image: "/static/personal care/facemask.jpeg",
+  },
+  {
+    id: 75,
+    title: "Face rollon",
+    category: "personal care",
+    price: 100,
+    image: "/static/personal care/face rollon.jpeg",
+  },
+  {
+    id: 76,
+    title: "Foot peal mask",
+    category: "personal care",
+    price: 100,
+    image: "/static/personal care/Foot peal mask.jpeg",
+  },
+  {
+    id: 77,
+    title: "Garnier wipes",
+    category: "personal care",
+    price: 100,
+    image: "/static/personal care/Garnier wipes.jpeg",
+  },
+  {
+    id: 78,
+    title: "Garnier cleansing",
+    category: "personal care",
+    price: 100,
+    image: "/static/personal care/Garnier cleansing.jpeg",
+  },
+  {
+    id: 79,
+    title: "simple facewash",
+    category: "personal care",
+    price: 50,
+    image: "/static/personal care/simple facewash.jpeg",
+  },
+  {
+    id: 80,
+    title: "Ponds powder",
+    category: "personal care",
+    price: 50,
+    image: "/static/personal care/Ponds powder.jpeg",
+  },
+  {
+    id: 81,
+    title: "Dove room fresh",
+    category: "personal care",
+    price: 250,
+    image: "/static/personal care/Dove room fresh.jpeg",
+  },
+  {
+    id: 82,
+    title: "Dove spray",
+    category: "personal care",
+    price: 150,
+    image: "/static/personal care/Dove spray.jpeg",
+  },
+  {
+    id: 83,
+    title: "Whisper",
+    category: "personal care",
+    price: 60,
+    image: "/static/personal care/Whisper.jpeg",
+  },
+  {
+    id: 84,
+    title: "Nivea set",
+    category: "personal care",
+    price: 200,
+    image: "/static/personal care/Nivea set.jpeg",
+  },
+  {
+    id: 85,
+    title: "Tooth.brush",
+    category: "personal care",
+    price: 15,
+    image: "/static/personal care/Tooth.brush.jpeg",
+  },
+  {
+    id: 86,
+    title: "Colgate",
+    category: "personal care",
+    price: 70,
+    image: "/static/personal care/Colgate.jpeg",
+  },
+  {
+    id: 87,
+    title: "Colgate toothpast",
+    category: "personal care",
+    price: 70,
+    image: "/static/personal care/Colgate toothpast.jpeg",
+  },
+  {
+    id: 88,
+    title: "Vaseline",
+    category: "personal care",
+    price: 30,
+    image: "/static/personal care/Vaseline.jpeg",
+  },
+  {
+    id: 89,
+    title: "Vaseline jelly",
+    category: "personal care",
+    price: 30,
+    image: "/static/personal care/Vaseline jelly.jpeg",
+  },
+  {
+    id: 90,
+    title: "Venus razor",
+    category: "personal care",
+    price: 30,
+    image: "/static/personal care/Venus razor.jpeg",
+  },
+  {
+    id: 91,
+    title: "Venus razor",
+    category: "personal care",
+    price: 50,
+    image: "/static/personal care/Venus razor.jpeg",
+  },
+  {
+    id: 92,
+    title: "Ponds sunscreen",
+    category: "personal care",
+    price: 200,
+    image: "/static/personal care/Ponds sunscreen.jpeg",
+  },
+  {
+    id: 93,
+    title: "Pantene E",
+    category: "personal care",
+    price: 200,
+    image: "/static/personal care/Pantene E.jpeg",
+  },
+  {
+    id: 94,
+    title: "Ponds 35+",
+    category: "personal care",
+    price: 150,
+    image: "/static/personal care/Ponds 35+.jpeg",
+  },
+  {
+    id: 95,
+    title: "Lotus",
+    category: "personal care",
+    price: 200,
+    image: "/static/personal care/Lotus.jpeg",
+  },
+  {
+    id: 96,
+    title: "Lotus whitecream",
+    category: "personal care",
+    price: 100,
+    image: "/static/personal care/Lotus whitecream.jpeg",
+  },
+  {
+    id: 97,
+    title: "Mac primer",
+    category: "personal care",
+    price: 200,
+    image: "/static/personal care/Mac primer.jpeg",
+  },
+  {
+    id: 98,
+    title: "Lakme primer",
+    category: "personal care",
+    price: 150,
+    image: "/static/personal care/Lakme primer.jpeg",
+  },
+  {
+    id: 99,
+    title: "Lakme sunscreen",
+    category: "personal care",
+    price: 300,
+    image: "/static/personal care/Lakme sunscreen.jpeg",
+  },
+  {
+    id: 100,
+    title: "Lakme 9to5",
+    category: "personal care",
+    price: 300,
+    image: "/static/personal care/Lakme 9to5.jpeg",
+  },
+  {
+    id: 101,
+    title: "Lavender mask",
+    category: "personal care",
+    price: 200,
+    image: "/static/personal care/lavender mask.jpeg",
+  },
+  {
+    id: 102,
+    title: "lorial kajal",
+    category: "personal care",
+    price: 200,
+    image: "/static/personal care/lorial kajal.jpeg",
+  },
+  {
+    id: 103,
+    title: "Castor oil",
+    category: "personal care",
+    price: 150,
+    image: "/static/personal care/Castor oil.jpeg",
+  },
+  {
+    id: 104,
+    title: "Mac Foundation",
+    category: "personal care",
+    price: 500,
+    image: "/static/personal care/Mac Foundation.jpeg",
+  },
+  {
+    id: 105,
+    title: "Moisturizer",
+    category: "personal care",
+    price: 120,
+    image: "/static/personal care/moisturizer.jpeg",
+  },
+    {
+    id: 106,
+    title: "Kitkat",
+    category: "Snacks and Beverages",
+    price: 20,
+    image: "/static/Snacks/Kitkat.jpeg",
+  },
+  {
+    id: 107,
+    title: "Kurkure",
+    category: "Snacks and Beverages",
+    price: 20,
+    image: "/static/Snacks/Kurkure.jpeg",
+  },
+  {
+    id: 108,
+    title: "Oreo cone",
+    category: "Snacks and Beverages",
+    price: 25,
+    image: "/static/Snacks/Oreo cone.jpeg",
+  },
+  {
+    id: 109,
+    title: "Bounty",
+    category: "Snacks and Beverages",
+    price: 25,
+    image: "/static/Snacks/Bounty.jpeg",
+  },
+  {
+    id: 110,
+    title: "Cheetos",
+    category: "Snacks and Beverages",
+    price: 30,
+    image: "/static/Snacks/Cheetos.jpeg",
+  },
+  {
+    id: 111,
+    title: "Chamallows",
+    category: "Snacks and Beverages",
+    price: 30,
+    image: "/static/Snacks/Chamallows.jpeg",
+  },
+  {
+    id: 112,
+    title: "Coca cola tin",
+    category: "Snacks and Beverages",
+    price: 40,
+    image: "/static/Snacks/Coca cola tin.jpeg",
+  },
+  {
+    id: 113,
+    title: "Cookie",
+    category: "Snacks and Beverages",
+    price: 40,
+    image: "/static/Snacks/Cookie.jpg",
+  },
+  {
+    id: 114,
+    title: "Croissant",
+    category: "Snacks and Beverages",
+    price: 30,
+    image: "/static/Snacks/Croissant.jpeg",
+  },
+  {
+    id: 115,
+    title: "Fanta",
+    category: "Snacks and Beverages",
+    price: 50,
+    image: "/static/Snacks/Fanta.jpeg",
+  },
+  {
+    id: 116,
+    title: "Fanta tin",
+    category: "Snacks and Beverages",
+    price: 50,
+    image: "/static/Snacks/Fanta tin.jpeg",
+  },
+  {
+    id: 117,
+    title: "Hersheys",
+    category: "Snacks and Beverages",
+    price: 40,
+    image: "/static/Snacks/Hersheys.jpeg",
+  },
+  {
+    id: 118,
+    title: "kinder joy",
+    category: "Snacks and Beverages",
+    price: 50,
+    image: "/static/Snacks/kinder joy.jpeg",
+  },
+  {
+    id: 119,
+    title: "Kitkat cone",
+    category: "Snacks and Beverages",
+    price: 50,
+    image: "/static/Snacks/Kitkat cone.jpeg",
+  },
+  {
+    id: 120,
+    title: "Lassi",
+    category: "Snacks and Beverages",
+    price: 30,
+    image: "/static/Snacks/Lassi.jpeg",
+  },
+  // Baby Care (15 items)
+{ id: 121, title: "Dove kit", price: 150, category: "Baby Care", image: "/static/Baby Care/Dove kit.jpeg" },
+{ id: 122, title: "Huggies", price: 200, category: "Baby Care", image: "/static/Baby Care/Huggies.jpeg" },
+{ id: 123, title: "Huggies wipes", price: 175, category: "Baby Care", image: "/static/Baby Care/Huggies wipes.jpeg" },
+{ id: 124, title: "Johnsons kit", price: 300, category: "Baby Care", image: "/static/Baby Care/Johnsons kit.jpeg" },
+{ id: 125, title: "Johnsons powder", price: 250, category: "Baby Care", image: "/static/Baby Care/Johnsons powder.jpeg" },
+{ id: 126, title: "Johnsons Shampoo", price: 200, category: "Baby Care", image: "/static/Baby Care/Johnsons Shampoo.jpeg" },
+{ id: 127, title: "Johnsons shampoos", price: 400, category: "Baby Care", image: "/static/Baby Care/Johnsons shampoos.jpeg" },
+{ id: 128, title: "Mamy poko pants", price: 200, category: "Baby Care", image: "/static/Baby Care/Mamy poko pants.jpeg" },
+{ id: 129, title: "Mamy poko pants l", price: 200, category: "Baby Care", image: "/static/Baby Care/Mamy poko pants l.jpeg" },
+{ id: 130, title: "Mamy poko pants s4", price: 200, category: "Baby Care", image: "/static/Baby Care/Mamy poko pants s4.jpeg" },
+{ id: 131, title: "Pampers", price: 200, category: "Baby Care", image: "/static/Baby Care/Pampers.jpeg" },
+{ id: 132, title: "Pampers wipes", price: 200, category: "Baby Care", image: "/static/Baby Care/Pampers wipes.jpeg" },
+{ id: 133, title: "Baby biscuits", price: 75, category: "Baby Care", image: "/static/Baby Care/Baby biscuits.jpeg" },
+{ id: 134, title: "Nestle cereales", price: 300, category: "Baby Care", image: "/static/Baby Care/Nestle cereales.jpeg" },
+
+// Grocery (40 items)
+{ id: 135, title: "Jeera powder", price: 250, category: "Grocery", image: "/static/Grocery/Jeera powder.jpeg" },
+{ id: 136, title: "Kasuri methi", price: 250, category: "Grocery", image: "/static/Grocery/Kasuri methi.jpeg" },
+{ id: 137, title: "Green moong", price: 250, category: "Grocery", image: "/static/Grocery/Green moong.jpeg" },
+{ id: 138, title: "Clove", price: 70, category: "Grocery", image: "/static/Grocery/Clove.jpeg" },
+{ id: 139, title: "Chakki atta", price: 300, category: "Grocery", image: "/static/Grocery/Chakki atta.jpeg" },
+{ id: 140, title: "Ragi flour", price: 300, category: "Grocery", image: "/static/Grocery/Ragi flour.jpeg" },
+{ id: 141, title: "Jasmine rice", price: 300, category: "Grocery", image: "/static/Grocery/Jasmine rice.jpeg" },
+{ id: 142, title: "Basmathi rice", price: 300, category: "Grocery", image: "/static/Grocery/Basmathi rice.jpeg" },
+{ id: 143, title: "Masala vadamix", price: 250, category: "Grocery", image: "/static/Grocery/Masala vadamix.jpeg" },
+{ id: 144, title: "Black seeds", price: 70, category: "Grocery", image: "/static/Grocery/Black seeds.jpeg" },
+{ id: 145, title: "Mutton masala", price: 50, category: "Grocery", image: "/static/Grocery/Mutton masala.jpeg" },
+{ id: 146, title: "Sugar", price: 150, category: "Grocery", image: "/static/Grocery/Sugar.jpeg" },
+{ id: 147, title: "Salt", price: 150, category: "Grocery", image: "/static/Grocery/Salt.jpeg" },
+{ id: 148, title: "Aashirvad salt", price: 150, category: "Grocery", image: "/static/Grocery/Aashirvad salt.jpeg" },
+{ id: 149, title: "Kasoori methi", price: 150, category: "Grocery", image: "/static/Grocery/Kasoori methi.jpeg" },
+{ id: 150, title: "Green cardomom", price: 250, category: "Grocery", image: "/static/Grocery/Green cardomom.jpeg" },
+{ id: 151, title: "Cardomom", price: 250, category: "Grocery", image: "/static/Grocery/Cardomom.jpeg" },
+{ id: 152, title: "Cardomom pods", price: 250, category: "Grocery", image: "/static/Grocery/Cardomom pods.jpeg" },
+{ id: 153, title: "Coriander powder", price: 250, category: "Grocery", image: "/static/Grocery/Coriander powder.jpeg" },
+{ id: 154, title: "Besan", price: 150, category: "Grocery", image: "/static/Grocery/Besan.jpeg" },
+{ id: 155, title: "Masoor dal", price: 150, category: "Grocery", image: "/static/Grocery/Masoor dal.jpeg" },
+{ id: 156, title: "Organic kalonji", price: 300, category: "Grocery", image: "/static/Grocery/Organic kalonji.jpeg" },
+{ id: 157, title: "Cumin ground 180g", price: 300, category: "Grocery", image: "/static/Grocery/Cumin ground 180g.jpeg" },
+{ id: 158, title: "Moong dal", price: 300, category: "Grocery", image: "/static/Grocery/Moong dal.jpeg" },
+{ id: 159, title: "Cardomom seeds", price: 170, category: "Grocery", image: "/static/Grocery/Cardomom seeds.jpeg" },
+{ id: 160, title: "Cardomom seeds 50g", price: 80, category: "Grocery", image: "/static/Grocery/Cardomom seeds 50g.jpeg" },
+{ id: 161, title: "Atta", price: 280, category: "Grocery", image: "/static/Grocery/Atta.jpeg" },
+{ id: 162, title: "Ground cumin", price: 150, category: "Grocery", image: "/static/Grocery/Ground cumin.jpeg" },
+{ id: 163, title: "Biryani masala", price: 150, category: "Grocery", image: "/static/Grocery/Biryani masala.jpeg" },
+{ id: 164, title: "Sticky rice", price: 350, category: "Grocery", image: "/static/Grocery/Sticky rice.jpeg" },
+{ id: 165, title: "Sweet rice", price: 200, category: "Grocery", image: "/static/Grocery/Sweet rice.jpeg" },
+{ id: 166, title: "Toor dal", price: 200, category: "Grocery", image: "/static/Grocery/Toor dal.jpeg" },
+{ id: 167, title: "Tata chanadal", price: 200, category: "Grocery", image: "/static/Grocery/Tata chanadal.jpeg" },
+{ id: 168, title: "Fish curry masala", price: 200, category: "Grocery", image: "/static/Grocery/Fish curry masala.jpeg" },
+{ id: 169, title: "Dal tadka", price: 200, category: "Grocery", image: "/static/Grocery/Dal tadka.jpeg" },
+{ id: 170, title: "Garam masala", price: 60, category: "Grocery", image: "/static/Grocery/Garam masala.jpeg" },
+{ id: 171, title: "organic moong dal", price: 100, category: "Grocery", image: "/static/Grocery/organic moong dal.jpeg" },
+{ id: 172, title: "Pickle", price: 100, category: "Grocery", image: "/static/Grocery/Pickle.jpeg" },
+{ id: 173, title: "Pizza sause", price: 100, category: "Grocery", image: "/static/Grocery/Pizza sause.jpeg" },
+{ id: 174, title: "Rice", price: 300, category: "Grocery", image: "/static/Grocery/Rice.jpeg" },
+{ id: 175, title: "Natco rice flour", price: 300, category: "Grocery", image: "/static/Grocery/Natco rice flour.jpeg" },
+{ id: 176, title: "Urad dal", price: 100, category: "Grocery", image: "/static/Grocery/Urad dal.jpeg" },
+{ id: 177, title: "Multigrain atta", price: 400, category: "Grocery", image: "/static/Grocery/Multigrain atta.jpeg" },
+
+// House Hold (31 items)
+{ id: 178, title: "Aer", price: 120, category: "House Hold", image: "/static/household/Aer.jpeg" },
+{ id: 179, title: "Air fresher", price: 120, category: "House Hold", image: "/static/household/Air fresher.jpeg" },
+{ id: 180, title: "Air mist", price: 100, category: "House Hold", image: "/static/household/Air mist.jpeg" },
+{ id: 181, title: "Air wick", price: 100, category: "House Hold", image: "/static/household/Air wick.jpeg" },
+{ id: 182, title: "aireal", price: 200, category: "House Hold", image: "/static/household/aireal.jpeg" },
+{ id: 183, title: "Attack", price: 200, category: "House Hold", image: "/static/household/Attack.jpeg" },
+{ id: 184, title: "Clip", price: 60, category: "House Hold", image: "/static/household/Clip.jpeg" },
+{ id: 185, title: "clorox", price: 60, category: "House Hold", image: "/static/household/clorox.jpeg" },
+{ id: 186, title: "dettol", price: 50, category: "House Hold", image: "/static/household/dettol.jpeg" },
+{ id: 187, title: "dishwasher", price: 100, category: "House Hold", image: "/static/household/dishwasher.jpeg" },
+{ id: 188, title: "downy", price: 100, category: "House Hold", image: "/static/household/downy.jpeg" },
+{ id: 189, title: "Downy cleaner", price: 100, category: "House Hold", image: "/static/household/Downy cleaner.jpeg" },
+{ id: 190, title: "dust pan", price: 80, category: "House Hold", image: "/static/household/dust pan.jpeg" },
+{ id: 191, title: "dustbin", price: 80, category: "House Hold", image: "/static/household/dustbin.jpeg" },
+{ id: 192, title: "dustbin cover", price: 80, category: "House Hold", image: "/static/household/dustbin cover.jpeg" },
+{ id: 193, title: "Febreze", price: 80, category: "House Hold", image: "/static/household/Febreze.jpeg" },
+{ id: 194, title: "Fairy", price: 90, category: "House Hold", image: "/static/household/Fairy.jpeg" },
+{ id: 195, title: "Glade", price: 100, category: "House Hold", image: "/static/household/Glade.jpeg" },
+{ id: 196, title: "Glade spray", price: 100, category: "House Hold", image: "/static/household/Glade spray.jpeg" },
+{ id: 197, title: "Glade air", price: 100, category: "House Hold", image: "/static/household/Glade air.jpeg" },
+{ id: 198, title: "Glat set", price: 100, category: "House Hold", image: "/static/household/Glat set.jpeg" },
+{ id: 199, title: "Harpic", price: 300, category: "House Hold", image: "/static/household/Harpic.jpeg" },
+{ id: 200, title: "Lenor", price: 150, category: "House Hold", image: "/static/household/Lenor.jpeg" },
+{ id: 201, title: "mop", price: 150, category: "House Hold", image: "/static/household/mop.jpeg" },
+{ id: 202, title: "Pril", price: 150, category: "House Hold", image: "/static/household/Pril.jpeg" },
+{ id: 203, title: "Room spray", price: 230, category: "House Hold", image: "/static/household/Room spray.jpeg" },
+{ id: 204, title: "Softouch", price: 250, category: "House Hold", image: "/static/household/Softouch.jpeg" },
+{ id: 205, title: "sponge", price: 400, category: "House Hold", image: "/static/household/sponge.jpeg" },
+{ id: 206, title: "spray bottles", price: 400, category: "House Hold", image: "/static/household/spray bottles.jpeg" },
+{ id: 207, title: "Tide", price: 240, category: "House Hold", image: "/static/household/tide.jpeg" },
+{ id: 208, title: "Tub", price: 270, category: "House Hold", image: "/static/household/tub.jpeg" },
+{ id: 209, title: "Vanish", price: 300, category: "House Hold", image: "/static/household/Vanish.jpeg" },
+
+// Home and Kitchen (14 items)
+{ id: 210, title: "Apron", price: 275, category: "Home and Kitchen", image: "/static/kitchen/Apron.jpeg" },
+{ id: 211, title: "Boul set", price: 320, category: "Home and Kitchen", image: "/static/kitchen/Boul set.jpeg" },
+{ id: 212, title: "Chopper", price: 250, category: "Home and Kitchen", image: "/static/kitchen/Chopper.jpeg" },
+{ id: 213, title: "Container", price: 200, category: "Home and Kitchen", image: "/static/kitchen/Container.jpeg" },
+{ id: 214, title: "Crocy holder", price: 200, category: "Home and Kitchen", image: "/static/kitchen/Crocy holder.jpeg" },
+{ id: 215, title: "Cutter", price: 200, category: "Home and Kitchen", image: "/static/kitchen/Cutter.jpeg" },
+{ id: 216, title: "Cutting board", price: 200, category: "Home and Kitchen", image: "/static/kitchen/Cutting board.jpeg" },
+{ id: 217, title: "Glass set", price: 150, category: "Home and Kitchen", image: "/static/kitchen/Glass set.jpeg" },
+{ id: 218, title: "Grain container", price: 150, category: "Home and Kitchen", image: "/static/kitchen/Grain container.jpeg" },
+{ id: 219, title: "Jar", price: 150, category: "Home and Kitchen", image: "/static/kitchen/Jar.jpeg" },
+{ id: 220, title: "Knife holder", price: 150, category: "Home and Kitchen", image: "/static/kitchen/Knife holder.jpeg" },
+{ id: 221, title: "Plate set", price: 400, category: "Home and Kitchen", image: "/static/kitchen/Plate set.jpeg" },
+{ id: 222, title: "Round pan", price: 400, category: "Home and Kitchen", image: "/static/kitchen/Round pan.jpeg" },
+{ id: 223, title: "Spice holder", price: 400, category: "Home and Kitchen", image: "/static/kitchen/Spice holder.jpeg" }
+
+];
+</script>
+</body>
+</html>

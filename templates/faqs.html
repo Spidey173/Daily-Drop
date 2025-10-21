@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Drop - FAQs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    /* Reset & Basic Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: #f0fdf4;
+      color: #333;
+      position: relative;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(circle at 90% 10%, rgba(12, 131, 31, 0.05) 0%, transparent 20%),
+        radial-gradient(circle at 10% 80%, rgba(12, 131, 31, 0.05) 0%, transparent 20%);
+      z-index: -1;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: linear-gradient(135deg, #0c831f, #1fa82d);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: 600;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    }
+
+    .navbar h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    /* Accordion Styles */
+    .container {
+      max-width: 900px;
+      margin: 3rem auto;
+      padding: 0 1rem;
+    }
+
+    .accordion {
+      border-radius: 8px;
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .accordion-item {
+      border-bottom: 1px solid #ddd;
+    }
+
+    .accordion-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem;
+      font-size: 1.2rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.4s;
+    }
+
+    .accordion-header:hover {
+      background-color: #ff5722;
+      color: white;
+    }
+
+    .accordion-header .icon {
+      font-size: 1.5rem;
+      transition: transform 0.4s;
+    }
+
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s;
+      padding: 0 1.2rem;
+      background-color: #f3f3f3;
+    }
+
+    .accordion-item.active .accordion-content {
+      max-height: 250px;
+      padding: 1rem;
+    }
+
+    .accordion-item.active .icon {
+      transform: rotate(45deg);
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      font-size: 1rem;
+      color: #555;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar/Header -->
+  <div class="navbar">
+    <h1>Daily Drop FAQs</h1>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <div class="accordion">
+      <!-- FAQ 1 -->
+      <div class="accordion-item">
+        <div class="accordion-header">
+          <h2>How do I place an order?</h2>
+          <span class="icon">+</span>
+        </div>
+        <div class="accordion-content">
+          <p>To place an order, simply browse our catalog, add items to your cart, and proceed to checkout. Enter your delivery address, and confirm payment.</p>
+        </div>
+      </div>
+
+      <!-- FAQ 2 -->
+      <div class="accordion-item">
+        <div class="accordion-header">
+          <h2>What are the delivery charges?</h2>
+          <span class="icon">+</span>
+        </div>
+        <div class="accordion-content">
+          <p>Delivery is free for all orders.</p>
+        </div>
+      </div>
+
+      <!-- FAQ 3 -->
+      <div class="accordion-item">
+        <div class="accordion-header">
+          <h2>How long will my order take?</h2>
+          <span class="icon">+</span>
+        </div>
+        <div class="accordion-content">
+          <p>Orders are typically delivered within 10-15 minutes during operating hours. Peak times may affect delivery times slightly.</p>
+        </div>
+      </div>
+
+      <!-- FAQ 4 -->
+      <div class="accordion-item">
+        <div class="accordion-header">
+          <h2>What payment methods do you accept?</h2>
+          <span class="icon">+</span>
+        </div>
+        <div class="accordion-content">
+          <p>We currently accept only cash on delivery.</p>
+        </div>
+      </div>
+
+      <!-- FAQ 5 -->
+      <div class="accordion-item">
+        <div class="accordion-header">
+          <h2>What is your return/refund policy?</h2>
+          <span class="icon">+</span>
+        </div>
+        <div class="accordion-content">
+          <p>If you receive a damaged or incorrect item, contact us within 2 hours of delivery to receive a refund or replacement.</p>
+        </div>
+      </div>
+
+      <!-- FAQ 6 -->
+      <div class="accordion-item">
+        <div class="accordion-header">
+          <h2>How can I contact customer support?</h2>
+          <span class="icon">+</span>
+        </div>
+        <div class="accordion-content">
+          <p>You can reach us via in-app chat, email us at support@dailydrop.com, or call +91-12345-67890.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>&copy; 2025 Daily Drop. All rights reserved.</footer>
+
+  <!-- Script -->
+  <script>
+    document.querySelectorAll('.accordion-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const item = header.parentElement;
+        item.classList.toggle('active');
+      });
+    });
+  </script>
+</body>
+</html>

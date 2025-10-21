@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms & Conditions - DailyDrop</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    /* Reset & Basic Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: #f0fdf4;
+      color: #333;
+      position: relative;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Updated Navbar - Green Theme */
+    .navbar {
+      background: linear-gradient(135deg, #0c831f, #1fa82d);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: 600;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-weight: bold;
+    }
+
+    /* Legal Content Container */
+    .legal-container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .legal-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      color: #2d3748;
+      font-size: 2.2rem;
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      color: #1fa82d;
+      font-size: 1.5rem;
+      margin: 25px 0 15px;
+    }
+
+    p {
+      line-height: 1.6;
+      margin-bottom: 15px;
+      color: #4a5568;
+    }
+
+    ul {
+      margin: 15px 0;
+      padding-left: 30px;
+    }
+
+    li {
+      margin-bottom: 10px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 25px;
+      background: #1fa82d;
+      color: white;
+      border-radius: 30px;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .back-btn i {
+      margin-right: 8px;
+    }
+
+    .footer {
+      background: #2d2d2d;
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      .legal-header h1 {
+        font-size: 2rem;
+      }
+
+      .section-card {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">Daily drop</div>
+    <a href="{{ url_for('login') }}" class="back-btn">
+      <i class="fas fa-arrow-left" style="margin-right: 8px;"></i>
+      Back to Login
+    </a>
+  </nav>
+
+  <div class="legal-container">
+    <div class="legal-card">
+      <h1>Terms & Conditions</h1>
+
+      <h2>1. Acceptance of Terms</h2>
+      <p>By accessing or using DailyDrop services, you agree to be bound by these terms...</p>
+
+      <h2>2. User Responsibilities</h2>
+      <ul>
+        <li>Must be 18+ years old to use our services</li>
+        <li>Accurate account information required</li>
+        <li>Prohibited commercial resale of products</li>
+      </ul>
+
+      <h2>3. Order Processing</h2>
+      <p>We reserve the right to cancel any order that...</p>
+    </div>
+
+    <div class="legal-card">
+      <h2>Returns & Refunds</h2>
+      <p>Damaged items must be reported within 24 hours...</p>
+    </div>
+  </div>
+
+  <!-- Reuse website footer -->
+  <footer class="footer">
+    <div class="container">
+        <p>© 2025 DailyDrop. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>

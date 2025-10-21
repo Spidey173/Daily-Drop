@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About DailyDrop - Groceries in Minutes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00cc66;
+            --secondary: #ff6b00;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--dark);
+            background-color: var(--light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 20px 0;
+        }
+
+        .logo-container {
+            text-align: center;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            font-weight: 700;
+            font-size: 36px;
+            color: var(--primary);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            color: var(--secondary);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, rgba(0,204,102,0.1) 0%, rgba(255,107,0,0.1) 100%);
+            padding: 100px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><polygon fill="white" points="0,0 100,0 100,100" opacity="0.1"/></svg>');
+            background-size: cover;
+            pointer-events: none;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            font-family: 'Montserrat', sans-serif;
+            color: var(--dark);
+        }
+
+        .hero h1 span {
+            color: var(--primary);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            color: var(--gray);
+        }
+
+        .timer-highlight {
+            background: var(--primary);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            display: inline-block;
+            margin: 10px 0;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(0, 204, 102, 0.3);
+            font-size: 1.1rem;
+        }
+
+        /* Our Story Section */
+        .story {
+            padding: 100px 0;
+            background-color: white;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-family: 'Montserrat', sans-serif;
+            color: var(--dark);
+            display: inline-block;
+        }
+
+        .section-title h2::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: var(--primary);
+            margin: 15px auto;
+            border-radius: 2px;
+        }
+
+        .story-content {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+        }
+
+        .story-text {
+            flex: 1;
+        }
+
+        .story-text h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--secondary);
+        }
+
+        .story-text p {
+            margin-bottom: 20px;
+            color: var(--gray);
+        }
+
+        .story-image {
+            flex: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* Team Section */
+        .team {
+            padding: 100px 0;
+            background: linear-gradient(135deg, rgba(0,204,102,0.05) 0%, rgba(255,107,0,0.05) 100%);
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .team-member {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: var(--transition);
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .team-member:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .member-img-container {
+            width: 100%;
+            height: 250px;
+            margin: 0 auto 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .member-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .team-member:hover .member-img-container img {
+            transform: scale(1.05);
+        }
+
+        .team-member h3 {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
+
+        .team-member .role {
+            color: var(--primary);
+            font-weight: 500;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .team-member p {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        /* Values Section */
+        .values {
+            padding: 100px 0;
+            background-color: white;
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .value-card {
+            text-align: center;
+            padding: 40px 30px;
+            border-radius: 10px;
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .value-card:hover {
+            background: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transform: translateY(-5px);
+            border-color: transparent;
+        }
+
+        .value-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(0, 204, 102, 0.1);
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: var(--primary);
+        }
+
+        .value-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+
+        .value-card p {
+            color: var(--gray);
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 80px 0;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .cta p {
+            max-width: 600px;
+            margin: 0 auto 30px;
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            background: white;
+            color: var(--primary);
+            padding: 15px 35px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            border: 2px solid white;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: transparent;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 70px 0 30px;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 600px;
+            margin: 0 auto 50px;
+        }
+
+        .footer-content h3 {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-content h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .footer-content p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 10px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .story-content {
+                flex-direction: column;
+            }
+
+            .section-title h2 {
+                font-size: 2rem;
+            }
+
+            .logo {
+                font-size: 28px;
+            }
+
+            .member-img-container {
+                height: 200px;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .delay-1 {
+            animation-delay: 0.1s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.3s;
+        }
+
+        .delay-4 {
+            animation-delay: 0.4s;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .social-links a:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="logo-container">
+                <div class="logo">
+                    <i class="fas fa-bolt"></i>
+                    DailyDrop
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container animate">
+            <h1>We Deliver More Than <span>Groceries</span></h1>
+            <p>DailyDrop is redefining convenience with lightning-fast delivery of your daily essentials.</p>
+            <div class="timer-highlight">
+                <i class="fas fa-stopwatch"></i> 10-15 MINUTE DELIVERY
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Story -->
+    <section class="story">
+        <div class="container">
+            <div class="section-title animate">
+                <h2>Our Story</h2>
+            </div>
+            <div class="story-content">
+                <div class="story-text animate delay-1">
+                    <h3>From a Simple Idea to Revolutionizing Daily Shopping</h3>
+                    <p>DailyDrop was founded by four friends who were frustrated with the time-consuming process of grocery shopping. We asked ourselves: what if you could get your daily essentials faster than it takes to brew a cup of coffee?</p>
+                    <p>Our mission was clear - to create a service that delivers not just products, but time back to our customers. We built an innovative logistics platform, partnered with local suppliers, and assembled a dedicated team to make the impossible possible.</p>
+                    <p>Today, DailyDrop delivers thousands of products to happy customers across the city in just 10-15 minutes. We're more than a delivery service - we're your reliable partner for everyday convenience.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Values -->
+    <section class="values">
+        <div class="container">
+            <div class="section-title animate">
+                <h2>Our Core Values</h2>
+            </div>
+            <div class="values-grid">
+                <div class="value-card animate delay-1">
+                    <div class="value-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Lightning Fast</h3>
+                    <p>We've optimized every step of our process to ensure your order arrives in 10-15 minutes. Our riders are strategically located throughout the city to minimize delivery time.</p>
+                </div>
+
+                <div class="value-card animate delay-2">
+                    <div class="value-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h3>Fresh & Quality</h3>
+                    <p>We source directly from trusted suppliers and farmers. Every product undergoes strict quality checks before reaching you.</p>
+                </div>
+
+                <div class="value-card animate delay-3">
+                    <div class="value-icon">
+                        <i class="fas fa-smile"></i>
+                    </div>
+                    <h3>Customer First</h3>
+                    <p>Your satisfaction is our priority. Our support team is available 24/7 to ensure a seamless experience with every order.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container animate">
+            <h2>Experience the DailyDrop Difference</h2>
+            <p>Join thousands of happy customers who save time every day with our ultra-fast delivery service.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <h3>DailyDrop</h3>
+                <p>Your trusted partner for lightning-fast delivery of daily essentials. We bring the store to your door in minutes.</p>
+                <p><i class="fas fa-map-marker-alt"></i> Horticulture, Chitradurga</p>
+                <p><i class="fas fa-phone"></i> +91 78292 83748</p>
+                <p><i class="fas fa-envelope"></i> support@dailydrop.com</p>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 DailyDrop. All rights reserved. Designed with <i class="fas fa-heart"></i> for convenience.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simple animation on scroll
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set initial state for animated elements
+            document.querySelectorAll('.animate').forEach(el => {
+                el.style.opacity = '0';
+            });
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            // Observe all animated elements
+            document.querySelectorAll('.animate').forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>

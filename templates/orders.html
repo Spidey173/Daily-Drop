@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Orders - Daily drop</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+    /* Reset & Base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    body {
+      background: #f0fdf4; /* Light green background */
+      color: #333;
+      position: relative;
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding-top: 80px;
+    }
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(circle at 90% 10%, rgba(12, 131, 31, 0.05) 0%, transparent 20%),
+        radial-gradient(circle at 10% 80%, rgba(12, 131, 31, 0.05) 0%, transparent 20%);
+      z-index: -1;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+    button {
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* Navigation */
+    .navbar {
+      background: linear-gradient(135deg, #0c831f, #1fa82d); /* Green gradient */
+      color: #fff;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .navbar .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #d4edda;
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .orders-link, .login-btn {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .orders-link:hover, .login-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+    .cart-icon {
+      background-color: #38a3a5;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+    }
+    .cart-icon:hover {
+      background-color: #2d8183;
+    }
+    .cart-icon #cart-count {
+      background: #ff6b6b;
+      color: #fff;
+      margin-left: 8px;
+      padding: 2px 6px;
+      border-radius: 50%;
+      font-size: 0.8rem;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+.section-title {
+  font-size: 1.7rem;
+  text-align: center;
+  margin-bottom: 32px;
+  color: #1fa82d;
+  font-weight: 700;
+}
+.section-title::after {
+  content: '';
+  display: block;
+  margin: 14px auto 0;
+  width: 64px;
+  height: 4px;
+  background: #38a3a5;
+  border-radius: 2px;
+  opacity: 0.5;
+}
+
+    /* Order Card */
+    .order-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+    }
+    .order-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    }
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #eee;
+    }
+    .order-id {
+       color: #1fa82d;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+    .order-date {
+      color: #4a5568;
+      font-size: 0.95rem;
+      margin-top: 5px;
+    }
+    .order-total {
+      font-weight: 700;
+      color: #4a5568;
+      font-size: 1.2rem;
+      text-align: right;
+    }
+    .order-address {
+      color: #4a5568;
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+    .order-status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 15px;
+      font-size: 0.8rem;
+  background: #b9fbc0;
+
+  color: #1fa82d;
+      margin-top: 10px;
+    }
+
+/* Product Items List */
+.order-products { margin-top: 20px; }
+.products-title {
+  color: #1fa82d;
+  font-size: 1.05rem;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+.product-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 10px 0 10px 10px;
+  background: #f4fcf7;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #eafcf1;
+}
+.product-image {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1.5px solid #b9fbc0;
+}
+.product-info { flex: 1; }
+.product-name {
+  color: #145838;
+  font-weight: bold;
+  margin-bottom: 3px;
+}
+.product-price {
+  color: #ff6b6b;
+  font-size: 0.96rem;
+}
+.product-quantity {
+  background: #1fa82d;
+  color: #fff;
+  border-radius: 10px;
+  padding: 3px 12px;
+  font-size: 0.89rem;
+  font-weight: 600;
+}
+
+/* No Orders / CTA */
+.no-orders {
+  text-align: center;
+  color: #31922c;
+  padding: 70px 0 30px;
+  font-size: 1.24rem;
+}
+.shop-btn {
+  display: inline-block;
+  margin-top: 18px;
+  background: #1fa82d;
+  color: #fff;
+  padding: 14px 34px;
+  border-radius: 30px;
+  font-weight: 600;
+  transition: background 0.25s;
+}
+.shop-btn:hover { background: #138a44; }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .order-header { flex-direction: column; gap: 10px; }
+  .order-total { text-align: left; }
+  .product-item { flex-direction: column; align-items: flex-start; gap: 11px; }
+  .navbar { flex-direction: column; align-items: flex-start; padding: 12px 10px;}
+  .container { padding: 10px 4px;}
+}
+  </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><a href="{{ url_for('index') }}">Daily drop</a></div>
+        <div class="nav-actions">
+            <a href="{{ url_for('index') }}" class="orders-link">Home</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2 class="section-title">My Orders</h2>
+
+        {% if not orders %}
+        <div class="no-orders">
+            <p>You haven't placed any orders yet.</p>
+            <a href="{{ url_for('index') }}" class="shop-btn">Start Shopping</a>
+        </div>
+        {% else %}
+            {% for order in orders %}
+            <div class="order-card">
+                <div class="order-header">
+                    <div>
+                        <h3 class="order-id">Order #{{ order.order_id }}</h3>
+                        <p class="order-date">
+                            <i class="far fa-calendar-alt"></i>
+                            {{ order.order_date.strftime('%d %b') }} <!-- Changed date format -->
+                        </p>
+                        <span class="order-status">
+                            <i class="fas fa-check-circle"></i> Delivered
+                        </span>
+                    </div>
+                    <div>
+                        <p class="order-total">
+                            <i class="fas fa-rupee-sign"></i> {{ order.total_amount }}
+                        </p>
+                        <p class="order-address">
+                            <i class="fas fa-map-marker-alt"></i>
+                            {{ order.address }}
+                        </p>
+                    </div>
+                </div>
+                <div class="order-products">
+                    <h4 class="products-title">Ordered Items</h4>
+                    {% for product in order.products %}
+                  <!-- In the product-item div -->
+                    <!-- In the product-item div -->
+<div class="product-item">
+    <img src="{{ product.image_path }}" class="product-image" alt="{{ product.name }}">
+    <div class="product-info">
+        <h4 class="product-name">{{ product.name }}</h4>
+        <p class="product-price">
+            <i class="fas fa-rupee-sign"></i> {{ product.price }} each
+        </p>
+    </div>
+    <span class="product-quantity">
+        {{ product.quantity }} item{% if product.quantity > 1 %}s{% endif %}
+    </span>
+</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const total = calculateTotal(cart);
+    const orderItemsDiv = document.getElementById('orderItems');
+    const orderTotalSpan = document.getElementById('orderTotal');
+
+    orderItemsDiv.innerHTML = '';
+
+    if (cart.length === 0) {
+        orderItemsDiv.innerHTML = '<p>No items in cart</p>';
+        return;
+    }
+
+    cart.forEach(item => {
+        const itemHTML = `
+            <div class="order-item">
+                <img src="${item.image}" alt="${item.name}">
+                <div class="item-info">
+                    <h4>${item.name}</h4>
+                    <p>Quantity: ${item.quantity}</p>
+                    <p>Price: Rs.${item.price.toFixed(2)} each</p>
+                </div>
+            </div>
+        `;
+        orderItemsDiv.insertAdjacentHTML('beforeend', itemHTML);
+    });
+
+    orderTotalSpan.textContent = `Rs.${total.toFixed(2)}`;
+});
+
+function calculateTotal(items) {
+    return items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+}
+
+async function placeOrder(event) {
+    event.preventDefault();
+
+    // Get form values
+    const fullName = document.getElementById('fullName').value.trim();
+    const address = document.getElementById('address').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    // Validation
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(phone)) {
+        alert("Invalid phone number. It must be 10 digits and start with 6, 7, 8, or 9.");
+        return;
+    }
+
+    if (!fullName || !address || !phone) {
+        alert('Please fill in all required fields');
+        return;
+    }
+
+    if (cart.length === 0) {
+        alert('Your cart is empty!');
+        return;
+    }
+
+    try {
+        // Create order data
+        const orderData = {
+            full_name: fullName,
+            phone_number: phone,
+            address: address,
+            products: cart.map(item => ({
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity
+            })),
+            total_amount: calculateTotal(cart)
+        };
+
+        const response = await fetch('/place_order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(orderData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert('Order confirmed! You will receive your order in 10 to 15 mins.');
+            localStorage.removeItem('cart');
+            window.location.href = "{{ url_for('index') }}";
+        } else {
+            alert('Order failed: ' + (data.message || 'Please try again'));
+        }
+    } catch (error) {
+        console.error('Order error:', error);
+        alert('Something went wrong. Please check the console for details.');
+    }
+}
+</script>
+</body>
+</html>

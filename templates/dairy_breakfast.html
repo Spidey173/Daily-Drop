@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Drop</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  /> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+ /* Reset & Basic Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+body {
+  background: #f0fdf4; /* Light green background */
+  color: #333;
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding-top: 80px;
+}
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(circle at 90% 10%, rgba(12, 131, 31, 0.05) 0%, transparent 20%),
+    radial-gradient(circle at 10% 80%, rgba(12, 131, 31, 0.05) 0%, transparent 20%);
+  z-index: -1;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+button {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Navigation */
+.navbar {
+  background: linear-gradient(135deg, #0c831f, #1fa82d); /* Green gradient */
+  color: #fff;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.navbar .logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+}
+.search-bar {
+  flex: 1;
+  margin: 0 20px;
+  max-width: 500px;
+}
+.search-bar input {
+  width: 100%;
+  padding: 10px 15px;
+  border-radius: 30px;
+  border: none;
+  font-size: 1rem;
+  outline: none;
+  background: rgba(255,255,255,0.9);
+}
+.cart-icon {
+  background-color: #0a6e1a; /* Dark green */
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 30px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cart-icon:hover {
+  background-color: #094d14; /* Darker green on hover */
+}
+.cart-icon #cart-count {
+  background: #ff4d4f;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Main container */
+.main-container {
+  display: flex;
+  max-width: 1400px;
+  margin: 20px auto 40px;
+  padding: 0 20px;
+  gap: 30px;
+}
+
+/* Categories sidebar */
+.categories-sidebar {
+  flex: 0 0 250px;
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  padding: 20px;
+  height: fit-content;
+  position: sticky;
+  top: 100px;
+  border: 1px solid #e9f9ec; /* Light green border */
+}
+.categories-header {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #eef2f7;
+  color: #0c831f; /* Green */
+  font-weight: 700;
+  position: relative;
+}
+.categories-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: #0c831f; /* Primary green */
+}
+.category-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  font-weight: 500;
+  color: #495057;
+  background: #f8f9fa;
+}
+.category-item:hover {
+  background: #e6f0ff;
+  color: #0c831f; /* Green */
+  transform: translateX(5px);
+}
+.category-item.active {
+  background: linear-gradient(135deg, #0c831f, #1fa82d); /* Green gradient */
+  color: white;
+  box-shadow: 0 4px 8px rgba(12, 131, 31, 0.3); /* Green shadow */
+}
+
+/* Products Section */
+.products-section {
+  flex: 1;
+}
+.products-title {
+  font-size: 2.2rem;
+  margin-bottom: 20px;
+  text-align: center;
+  position: relative;
+  padding-bottom: 15px;
+  color: #0a6e1a; /* Dark green */
+}
+.products-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 4px;
+  background: linear-gradient(90deg, #0c831f, #1fa82d); /* Green gradient */
+  border-radius: 2px;
+}
+.category-title {
+  font-size: 1.8rem;
+  margin: 20px 0;
+  color: #2c3e50;
+  padding-left: 15px;
+  border-left: 4px solid #0c831f; /* Green */
+}
+
+/* Products Grid */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+.product-card {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid #e9f9ec; /* Light green border */
+}
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border-color: #0c831f; /* Green border on hover */
+}
+.product-image {
+  width: 100%;
+  height: 220px;
+  object-fit: contain;
+  background: #f9f9f9;
+}
+.product-details {
+  padding: 15px;
+}
+.product-title {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+  color: #0c831f; /* Green */
+  font-weight: 600;
+}
+.product-price {
+  font-size: 1.3rem;
+  color: #ff4d4f;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+.product-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.add-to-cart-btn {
+  background: #0c831f; /* Primary green */
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  transition: background 0.3s;
+  flex: 1;
+}
+.add-to-cart-btn:hover {
+  background: #0a6e1a; /* Dark green */
+}
+.view-detail {
+  background: #ffffff;
+  color: #0c831f; /* Green */
+  border: 1px solid #0c831f; /* Green */
+  padding: 8px 14px;
+  border-radius: 25px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  flex: 1;
+  text-align: center;
+}
+.view-detail:hover {
+  background: #0c831f; /* Green */
+  color: white;
+}
+
+/* Scroll to Top Button */
+.scroll-to-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: linear-gradient(135deg, #0c831f, #1fa82d); /* Green gradient */
+  color: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+.scroll-to-top:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+}
+.scroll-to-top.show {
+  display: flex;
+}
+
+/* Notification */
+.notification {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  background: #28a745;
+  color: white;
+  padding: 15px 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 2000;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: all 0.3s ease;
+}
+.notification.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+  .main-container {
+    max-width: 1000px;
+  }
+}
+
+@media (max-width: 992px) {
+  .main-container {
+    flex-direction: column;
+  }
+  .categories-sidebar {
+    position: relative;
+    top: 0;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-wrap: wrap;
+  }
+  .search-bar {
+    order: 3;
+    margin: 15px 0 0;
+    width: 100%;
+  }
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .products-title {
+    font-size: 1.8rem;
+  }
+  .category-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
+  .cart-icon span:first-child {
+    display: none;
+  }
+  .product-actions {
+    flex-direction: column;
+  }
+  .add-to-cart-btn, .view-detail {
+    width: 100%;
+  }
+}
+  </style>
+</head>
+<body>
+<!-- Modal -->
+<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="productModalLabel">Product Details</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body d-flex flex-wrap align-items-center">
+        <div class="col-md-5 text-center">
+          <img id="modalImage" src="" alt="Product Image" class="img-fluid rounded shadow-sm">
+        </div>
+        <div class="col-md-7 ps-4">
+          <h4 id="modalTitle" class="text-primary"></h4>
+          <h5 id="modalPrice" class="text-danger"></h5>
+          <p id="modalDescription">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod justo vitae ligula bibendum pretium.</p>
+          <button class="btn btn-success mt-3" onclick="addToCartFromModal()">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <nav class="navbar">
+    <a href="{{ url_for('index') }}"><h1 class="logo">Daily drop</h1></a>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search for products..." />
+    </div>
+    <a href="{{ url_for('cart') }}" class="cart-icon">
+      <i class="fas fa-shopping-cart"></i>
+      <span>Cart</span>
+      <span id="cart-count">0</span>
+    </a>
+  </nav>
+
+  <div class="main-container">
+    <!-- Categories sidebar -->
+    <div class="categories-sidebar">
+      <h3 class="categories-header">Product Categories</h3>
+      <div class="category-item active" data-category="all">
+        All Products
+      </div>
+      <div class="category-item" data-category="Milk">
+        Milk
+      </div>
+      <div class="category-item" data-category="Dairy">
+        Dairy
+      </div>
+      <div class="category-item" data-category="Breakfast">
+        Breakfast
+      </div>
+      <div class="category-item" data-category="Chocos">
+        Chocos
+      </div>
+    </div>
+
+    <!-- Products section -->
+    <div class="products-section">
+      <h2 class="products-title">Dairy and Breakfast</h2>
+      <h3 class="category-title" id="active-category">All Products</h3>
+
+      <div class="products-grid" id="productsGrid">
+        <!-- Products will be loaded here dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-to-top" onclick="scrollToTop()">
+    <i class="fas fa-arrow-up"></i>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Enhanced Add to Cart functionality
+    function addToCart(productName, productPrice, productImage) {
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+      // Check if product already exists
+      const existingItem = cart.find(item => item.name === productName);
+
+      if (existingItem) {
+        existingItem.quantity++;
+      } else {
+        cart.push({
+          name: productName,
+          price: productPrice,
+          image: productImage,
+          quantity: 1
+        });
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart));
+      updateCartCount();
+      showCartAnimation();
+      showNotification(`${productName} added to cart!`);
+    }
+
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const count = cart.reduce((total, item) => total + item.quantity, 0);
+      const cartCount = document.getElementById('cart-count');
+
+      cartCount.textContent = count;
+      cartCount.classList.add('pulse');
+      setTimeout(() => cartCount.classList.remove('pulse'), 300);
+    }
+
+    function showCartAnimation() {
+      const cartIcon = document.querySelector('.cart-icon');
+      cartIcon.style.transform = 'scale(1.1)';
+      setTimeout(() => cartIcon.style.transform = 'scale(1)', 300);
+    }
+
+    function showNotification(message) {
+      // Create notification element
+      const notification = document.createElement('div');
+      notification.className = 'notification';
+      notification.textContent = message;
+      document.body.appendChild(notification);
+
+      // Show notification
+      setTimeout(() => notification.classList.add('show'), 10);
+
+      // Remove after delay
+      setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
+
+    // Initialize cart count
+    updateCartCount();
+
+    // Live search
+    document.getElementById('searchInput').addEventListener('input', function() {
+      const filter = this.value.toLowerCase();
+      const cards = document.querySelectorAll('.product-card');
+      cards.forEach(card => {
+        const title = card.getAttribute('data-title').toLowerCase();
+        card.style.display = title.includes(filter) ? '' : 'none';
+      });
+    });
+
+    // Scroll to Top Functionality
+    const scrollButton = document.querySelector('.scroll-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.pageYOffset > 300) {
+        scrollButton.classList.add('show');
+      } else {
+        scrollButton.classList.remove('show');
+      }
+    });
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+const products = [
+  { name: "Amul lassi", price: 20, image: "/static/Dairy and breakfast/Amul lassi.jpeg", category: "Milk" },
+  { name: "Milk", price: 20, image: "/static/image/milk.jpg", category: "Milk" },
+  { name: "egg", price: 100, image: "/static/image/egg.jpg", category: "Breakfast" },
+  { name: "Badam drink milk", price: 30, image: "/static/Dairy and breakfast/Badam drink milk.jpeg", category: "Milk" },
+  { name: "Bread", price: 50, image: "/static/Dairy and breakfast/Bread.jpeg", category: "Bread" },
+  { name: "Brown bread", price: 50, image: "/static/Dairy and breakfast/Brown bread.jpeg", category: "Bread" },
+  { name: "Burger bun", price: 50, image: "/static/Dairy and breakfast/Burger bun.jpeg", category: "Bread" },
+  { name: "Blueberry cinnamon flax", price: 30, image: "/static/Dairy and breakfast/Blueberry cinnamon flax.jpeg", category: "Breakfast" },
+  { name: "Butter", price: 50, image: "/static/Dairy and breakfast/Butter.jpeg", category: "Breakfast" },
+  { name: "Cheese", price: 50, image: "/static/Dairy and breakfast/Cheese.jpeg", category: "Dairy" },
+  { name: "Cheese slice", price: 70, image: "/static/Dairy and breakfast/Cheese slice.jpeg", category: "Dairy" },
+  { name: "Coca cola tin", price: 40, image: "/static/Snacks/Coca cola tin.jpeg", category: "Snacks" },
+  { name: "Choco krispis", price: 40, image: "/static/Dairy and breakfast/Choco krispis.jpeg", category: "Chocos" },
+  { name: "Coco pops", price: 40, image: "/static/Dairy and breakfast/Coco pops.jpeg", category: "Chocos" },
+  { name: "COCONUT MILK", price: 40, image: "/static/Dairy and breakfast/COCONUT MILK.jpeg", category: "Milk" },
+  { name: "Cocopops chocos", price: 40, image: "/static/Dairy and breakfast/Cocopops chocos.jpeg", category: "Chocos" },
+  { name: "Dabur honey", price: 40, image: "/static/Dairy and breakfast/Dabur honey.jpeg", category: "Grocery" },
+  { name: "Eno", price: 10, image: "/static/Dairy and breakfast/Eno.jpeg", category: "Dairy" },
+  { name: "Ghee", price: 40, image: "/static/Dairy and breakfast/Ghee.jpeg", category: "Dairy" },
+  { name: "Govind lassi", price: 40, image: "/static/Dairy and breakfast/govind lassi.jpeg", category: "Milk" },
+  { name: "Gulab jamun", price: 75, image: "/static/Dairy and breakfast/Gulab jamun.jpeg", category: "Dairy" },
+  { name: "Honey", price: 25, image: "/static/Dairy and breakfast/Honey.jpeg", category: "Dairy" },
+  { name: "Jam", price: 25, image: "/static/Dairy and breakfast/Jam.jpeg", category: "Dairy" },
+  { name: "Kissan jam", price: 25, image: "/static/Dairy and breakfast/Kissan jam.jpeg", category: "Dairy" },
+  { name: "Red label", price: 50, image: "/static/image/tea.jpg", category: "Dairy" },
+  { name: "Horlicks", price: 55, image: "/static/Dairy and breakfast/Horlicks.jpeg", category: "Dairy" },
+  { name: "Mentos", price: 10, image: "/static/Snacks/Mentos.jpeg", category: "Snacks" },
+  { name: "Nutella", price: 30, image: "/static/Snacks/Nutella.jpeg", category: "Dairy" },
+  { name: "Milkmade", price: 55, image: "/static/Dairy and breakfast/Milkmade.jpeg", category: "Dairy" },
+  { name: "Nescafe", price: 25, image: "/static/Dairy and breakfast/Nescafe.jpeg", category: "Dairy" },
+  { name: "Nut butter", price: 25, image: "/static/Dairy and breakfast/Nut butter.jpeg", category: "Dairy" },
+  { name: "Oatmeal", price: 75, image: "/static/Dairy and breakfast/Oatmeal.jpeg", category: "Breakfast" },
+  { name: "Sweet yogurt", price: 75, image: "/static/Dairy and breakfast/Sweet yogurt.jpeg", category: "Dairy" },
+  { name: "Soup", price: 50, image: "/static/Dairy and breakfast/soap.jpeg", category: "Breakfast" },
+  { name: "Yippee", price: 50, image: "/static/Dairy and breakfast/yippe.jpeg", category: "Dairy" },
+  { name: "Rava dosa", price: 100, image: "/static/Dairy and breakfast/Rava dosa.jpeg", category: "Breakfast" },
+  { name: "Quaker oat", price: 80, image: "/static/Dairy and breakfast/Quaker oat.jpeg", category: "Breakfast" },
+  { name: "Maggie", price: 5, image: "/static/Dairy and breakfast/Maggie.jpeg", category: "Dairy" },
+  { name: "Naturalla", price: 30, image: "/static/Dairy and breakfast/Naturalla.jpeg", category: "Dairy" },
+  { name: "Patanjali jam", price: 30, image: "/static/Dairy and breakfast/Patanjali jam.jpeg", category: "Dairy" },
+  { name: "Mozzarellla cheese", price: 30, image: "/static/Dairy and breakfast/Mozzarellla cheese.jpeg", category: "Dairy" },
+  { name: "Bournvita", price: 100, image: "/static/Grocery/Bournvita.jpeg", category: "Milk" },
+  { name: "Peanuts smooth", price: 30, image: "/static/Dairy and breakfast/Peanuts smooth.jpeg", category: "Dairy" },
+  { name: "Peanut butter", price: 70, image: "/static/Dairy and breakfast/Peanut butter.jpeg", category: "Dairy" }
+];
+
+    // Function to render products
+    function renderProducts(category = 'all') {
+      const productsGrid = document.getElementById('productsGrid');
+      productsGrid.innerHTML = '';
+
+      const filteredProducts = category === 'all'
+        ? products
+        : products.filter(product => product.category === category);
+
+      filteredProducts.forEach(product => {
+        const productCard = document.createElement('div');
+        productCard.className = 'product-card';
+        productCard.setAttribute('data-title', product.name);
+
+        productCard.innerHTML = `
+          <img src="${product.image}" alt="${product.name}" class="product-image" />
+          <div class="product-details">
+            <div class="product-title">${product.name}</div>
+            <div class="product-price">Rs.${product.price}</div>
+            <div class="product-actions">
+              <button class="view-detail" data-bs-toggle="modal" data-bs-target="#productModal" onclick="showDetails('${product.name}', 'Rs.${product.price}', '${product.image}')">View Details</button>
+              <button class="add-to-cart-btn" onclick="addToCart('${product.name}', ${product.price}, '${product.image}')">Add to Cart</button>
+            </div>
+          </div>
+        `;
+
+        productsGrid.appendChild(productCard);
+      });
+    }
+
+    // Initialize with all products
+    renderProducts();
+
+    // Category selection
+    const categoryItems = document.querySelectorAll('.category-item');
+    const activeCategoryTitle = document.getElementById('active-category');
+
+    categoryItems.forEach(item => {
+      item.addEventListener('click', function() {
+        // Update active class
+        categoryItems.forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+
+        // Get category
+        const category = this.dataset.category;
+
+        // Update category title
+        activeCategoryTitle.textContent = this.textContent.trim();
+
+        // Render products
+        renderProducts(category);
+      });
+    });
+
+    // Show product details
+    function showDetails(name, price, image) {
+      document.getElementById('modalTitle').innerText = name;
+      document.getElementById('modalPrice').innerText = price;
+      document.getElementById('modalImage').src = image;
+
+const descriptions = {
+  "Amul lassi": "Amul Lassi is a traditional Indian yogurt-based drink, blending tangy yogurt with a hint of sweetness for a refreshing, probiotic-rich beverage.",
+  "Milk": "Fresh cow’s milk is a rich source of calcium, protein, and essential vitamins, perfect for drinking, cooking, or adding to cereal and tea.",
+  "egg": "Farm-fresh eggs are a versatile protein powerhouse, great for boiling, scrambling, baking, or as an ingredient in both sweet and savory dishes.",
+  "Badam drink milk": "Badam Drink Milk is a flavored almond-infused milk, combining creamy dairy with the nutty aroma of almonds for a nutritious and indulgent treat.",
+  "Bread": "Soft white bread loaf, perfect for sandwiches, toast, or French toast, with a light texture and neutral flavor that pairs well with sweet or savory toppings.",
+  "Brown bread": "Whole wheat (brown) bread loaf, toasted or fresh, delivering extra fiber and nutrients along with a hearty, slightly nutty taste.",
+  "Burger bun": "Light and fluffy burger buns with a soft crust, specially shaped for burgers and sandwiches, offering the right balance of chew and structure.",
+  "Blueberry cinnamon flax": "A wholesome breakfast bar or cereal blend featuring blueberries, warming cinnamon, and flax seeds, rich in antioxidants, fiber, and omega-3s.",
+  "Butter": "Creamy dairy butter churned from cow’s milk, ideal for spreading, cooking, baking, and adding richness to any dish.",
+  "Cheese": "Mild block cheese offering a smooth, creamy texture and subtle flavor, great for slicing, grating, or melting in recipes.",
+  "Cheese slice": "Individually wrapped processed cheese slices that melt evenly, perfect for burgers, sandwiches, and quick melts.",
+  "Coca cola tin": "A 330 ml chilled Coca-Cola in a can, delivering the classic caramel-cola flavor and effervescence as a refreshing soft drink.",
+  "Choco krispis": "Chocolate-flavored crisped rice cereal, providing a crunchy, sweet start to your morning with a chocolate twist.",
+  "Coco pops": "Rice cereal pieces coated in cocoa, turning your milk chocolatey-brown and offering a crispy, fun breakfast experience.",
+  "COCONUT MILK": "Coconut milk extracted from fresh coconuts, offering a creamy, dairy-free alternative perfect for curries, smoothies, and desserts.",
+  "Cocopops chocos": "A chocolatey variant of rice cereal that makes milk sweet and brown, loved by kids and adults alike.",
+  "Dabur honey": "Pure, natural honey sourced from Indian blossoms, known for its smooth texture, floral aroma, and antioxidant properties.",
+  "Eno": "Instant fruit salt antacid powder for quick relief from indigestion, acidity, and heartburn; just stir in water and drink.",
+  "Ghee": "Clarified butter (ghee) with a high smoke point and nutty aroma, essential in Indian cooking and prized for its rich flavor.",
+  "Govind lassi": "Govind Lassi is a traditional yogurt drink, thick and creamy, lightly sweetened, often enjoyed chilled for its probiotic benefits.",
+  "Gulab jamun": "Soft, milk-solid dumplings soaked in rose-scented sugar syrup, a classic Indian dessert indulgence.",
+  "Honey": "Pure natural honey, versatile as a sweetener in tea, on toast, in baking, or enjoyed by the spoonful for its health benefits.",
+  "Jam": "Fruit spread made from cooked fruit and sugar, perfect on toast, pancakes, or as a filling in pastries.",
+  "Kissan jam": "Kissan brand fruit jam with a smooth texture and vibrant fruit flavors, ideal for spreading on bread or biscuits.",
+  "Red label": "Tata Tea Red Label is a strong, full-bodied black tea blend, known for its brisk taste and deep amber liquor.",
+  "Horlicks": "Malted milk drink powder fortified with vitamins and minerals, mixed into warm or cold milk as a nourishing health drink.",
+  "Mentos": "Chewy, mint-flavored candy that freshens breath instantly, available in mint and fruit varieties.",
+  "Nutella": "Creamy chocolate-hazelnut spread richly sweet, perfect on bread, pancakes, fruit, or straight from the jar.",
+  "Milkmade": "Flavored milk powder mix that turns plain milk into flavored varieties like vanilla or strawberry, loved by kids.",
+  "Nescafe": "Instant coffee granules for quick brewing, offering a smooth, rich coffee experience in seconds.",
+  "Nut butter": "Smooth nut butter made from roasted nuts (peanuts or almonds), a protein-rich spread for toast, fruits, or smoothies.",
+  "Oatmeal": "Whole-grain oats, slow-cooked into a creamy porridge, high in fiber and heart-healthy nutrients.",
+  "Sweet yogurt": "Creamy yogurt subtly sweetened, perfect as a snack, dessert base, or accompaniment to fruits and granola.",
+  "Soup": "Ready-to-eat savory soup, offering a warm, comforting meal in minutes; simply heat and serve.",
+  "Yippee": "Instant noodles brand known for its flavorful masala seasoning and quick-cook convenience.",
+  "Rava dosa": "Crispy semolina (rava) dosa, lacy and light, served hot with chutney and sambar for a delectable South Indian breakfast.",
+  "Quaker oat": "Quaker brand whole rolled oats, versatile for porridge, baking, and granola, rich in soluble fiber.",
+  "Maggie": "Maggi instant noodles, a classic snack or quick meal option, flavored with masala seasoning.",
+  "Naturalla": "Natural fruit or nut spread (varies by variant) made without artificial preservatives, offering wholesome flavor.",
+  "Patanjali jam": "Patanjali brand fruit jam made from real fruit pulp, offering natural taste and fewer artificial ingredients.",
+  "Mozzarellla cheese": "Soft, stretchy mozzarella cheese ideal for pizzas, salads, and melts, with a mild, milky flavor.",
+  "Bournvita": "Malted chocolate health drink mix enriched with vitamins and minerals, stirred into milk for an energy boost.",
+  "Peanuts smooth": "Smooth peanut spread offering creamy texture and rich nutty taste, perfect for sandwiches or baking.",
+  "Peanut butter": "Classic peanut butter made from roasted peanuts, packed with protein and healthy fats for a satisfying spread."
+};
+
+      document.getElementById('modalDescription').innerText = descriptions[name] || 'A fresh and nutritious product perfect for your daily meals.';
+    }
+
+    function addToCartFromModal() {
+      const name = document.getElementById('modalTitle').innerText;
+      const priceText = document.getElementById('modalPrice').innerText;
+      const image = document.getElementById('modalImage').src;
+      const price = parseInt(priceText.replace(/\D/g, ''));
+      addToCart(name, price, image);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Drop</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  /> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  /* Reset & Basic Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+body {
+  background: #f0fdf4; /* Light green background */
+  color: #333;
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding-top: 80px;
+}
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(circle at 90% 10%, rgba(12, 131, 31, 0.05) 0%, transparent 20%),
+    radial-gradient(circle at 10% 80%, rgba(12, 131, 31, 0.05) 0%, transparent 20%);
+  z-index: -1;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+button {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Navigation */
+.navbar {
+  background: linear-gradient(135deg, #0c831f, #1fa82d); /* Green gradient */
+  color: #fff;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.navbar .logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+}
+.search-bar {
+  flex: 1;
+  margin: 0 20px;
+  max-width: 500px;
+}
+.search-bar input {
+  width: 100%;
+  padding: 10px 15px;
+  border-radius: 30px;
+  border: none;
+  font-size: 1rem;
+  outline: none;
+  background: rgba(255,255,255,0.9);
+}
+.cart-icon {
+  background-color: #0a6e1a; /* Dark green */
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 30px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cart-icon:hover {
+  background-color: #094d14; /* Darker green on hover */
+}
+.cart-icon #cart-count {
+  background: #ff4d4f;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Main container */
+.main-container {
+  display: flex;
+  max-width: 1400px;
+  margin: 20px auto 40px;
+  padding: 0 20px;
+  gap: 30px;
+}
+
+/* Categories sidebar */
+.categories-sidebar {
+  flex: 0 0 250px;
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  padding: 20px;
+  height: fit-content;
+  position: sticky;
+  top: 100px;
+  border: 1px solid #e9f9ec; /* Light green border */
+}
+.categories-header {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #eef2f7;
+  color: #0c831f; /* Green */
+  font-weight: 700;
+  position: relative;
+}
+.categories-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: #0c831f; /* Primary green */
+}
+.category-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  font-weight: 500;
+  color: #495057;
+  background: #f8f9fa;
+}
+.category-item:hover {
+  background: #e6f0ff;
+  color: #0c831f; /* Green */
+  transform: translateX(5px);
+}
+.category-item.active {
+  background: linear-gradient(135deg, #0c831f, #1fa82d); /* Green gradient */
+  color: white;
+  box-shadow: 0 4px 8px rgba(12, 131, 31, 0.3); /* Green shadow */
+}
+
+/* Products Section */
+.products-section {
+  flex: 1;
+}
+.products-title {
+  font-size: 2.2rem;
+  margin-bottom: 20px;
+  text-align: center;
+  position: relative;
+  padding-bottom: 15px;
+  color: #0a6e1a; /* Dark green */
+}
+.products-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 4px;
+  background: linear-gradient(90deg, #0c831f, #1fa82d); /* Green gradient */
+  border-radius: 2px;
+}
+.category-title {
+  font-size: 1.8rem;
+  margin: 20px 0;
+  color: #2c3e50;
+  padding-left: 15px;
+  border-left: 4px solid #0c831f; /* Green */
+}
+
+/* Products Grid */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+.product-card {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid #e9f9ec; /* Light green border */
+}
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border-color: #0c831f; /* Green border on hover */
+}
+.product-image {
+  width: 100%;
+  height: 220px;
+  object-fit: contain;
+  background: #f9f9f9;
+}
+.product-details {
+  padding: 15px;
+}
+.product-title {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+  color: #0c831f; /* Green */
+  font-weight: 600;
+}
+.product-price {
+  font-size: 1.3rem;
+  color: #ff4d4f;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+.product-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.add-to-cart-btn {
+  background: #0c831f; /* Primary green */
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  transition: background 0.3s;
+  flex: 1;
+}
+.add-to-cart-btn:hover {
+  background: #0a6e1a; /* Dark green */
+}
+.view-detail {
+  background: #ffffff;
+  color: #0c831f; /* Green */
+  border: 1px solid #0c831f; /* Green */
+  padding: 8px 14px;
+  border-radius: 25px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  flex: 1;
+  text-align: center;
+}
+.view-detail:hover {
+  background: #0c831f; /* Green */
+  color: white;
+}
+
+/* Scroll to Top Button */
+.scroll-to-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: linear-gradient(135deg, #0c831f, #1fa82d); /* Green gradient */
+  color: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+.scroll-to-top:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+}
+.scroll-to-top.show {
+  display: flex;
+}
+
+/* Notification */
+.notification {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  background: #28a745;
+  color: white;
+  padding: 15px 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 2000;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: all 0.3s ease;
+}
+.notification.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+  .main-container {
+    max-width: 1000px;
+  }
+}
+
+@media (max-width: 992px) {
+  .main-container {
+    flex-direction: column;
+  }
+  .categories-sidebar {
+    position: relative;
+    top: 0;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-wrap: wrap;
+  }
+  .search-bar {
+    order: 3;
+    margin: 15px 0 0;
+    width: 100%;
+  }
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .products-title {
+    font-size: 1.8rem;
+  }
+  .category-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
+  .cart-icon span:first-child {
+    display: none;
+  }
+  .product-actions {
+    flex-direction: column;
+  }
+  .add-to-cart-btn, .view-detail {
+    width: 100%;
+  }
+}
+  </style>
+</head>
+<body>
+<!-- Modal -->
+<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="productModalLabel">Product Details</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body d-flex flex-wrap align-items-center">
+        <div class="col-md-5 text-center">
+          <img id="modalImage" src="" alt="Product Image" class="img-fluid rounded shadow-sm">
+        </div>
+        <div class="col-md-7 ps-4">
+          <h4 id="modalTitle" class="text-primary"></h4>
+          <h5 id="modalPrice" class="text-danger"></h5>
+          <p id="modalDescription">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod justo vitae ligula bibendum pretium.</p>
+          <button class="btn btn-success mt-3" onclick="addToCartFromModal()">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <nav class="navbar">
+    <a href="{{ url_for('index') }}"><h1 class="logo">Daily drop</h1></a>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search for products..." />
+    </div>
+    <a href="{{ url_for('cart') }}" class="cart-icon">
+      <i class="fas fa-shopping-cart"></i>
+      <span>Cart</span>
+      <span id="cart-count">0</span>
+    </a>
+  </nav>
+
+  <div class="main-container">
+    <!-- Categories sidebar -->
+    <div class="categories-sidebar">
+      <h3 class="categories-header">Product Categories</h3>
+      <div class="category-item active" data-category="all">
+        All Products
+      </div>
+      <div class="category-item" data-category="Freshners">
+        Freshners
+      </div>
+      <div class="category-item" data-category="Toilet cleaner">
+        Toilet cleaner
+      </div>
+      <div class="category-item" data-category="Cleaning tools">
+        Cleaning Tools
+      </div>
+      <div class="category-item" data-category="Bathroom essential">
+        Bathroom essential
+      </div>
+    </div>
+
+    <!-- Products section -->
+    <div class="products-section">
+      <h2 class="products-title">House Hold</h2>
+      <h3 class="category-title" id="active-category">All Products</h3>
+
+      <div class="products-grid" id="productsGrid">
+        <!-- Products will be loaded here dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-to-top" onclick="scrollToTop()">
+    <i class="fas fa-arrow-up"></i>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Enhanced Add to Cart functionality
+    function addToCart(productName, productPrice, productImage) {
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+      // Check if product already exists
+      const existingItem = cart.find(item => item.name === productName);
+
+      if (existingItem) {
+        existingItem.quantity++;
+      } else {
+        cart.push({
+          name: productName,
+          price: productPrice,
+          image: productImage,
+          quantity: 1
+        });
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart));
+      updateCartCount();
+      showCartAnimation();
+      showNotification(`${productName} added to cart!`);
+    }
+
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const count = cart.reduce((total, item) => total + item.quantity, 0);
+      const cartCount = document.getElementById('cart-count');
+
+      cartCount.textContent = count;
+      cartCount.classList.add('pulse');
+      setTimeout(() => cartCount.classList.remove('pulse'), 300);
+    }
+
+    function showCartAnimation() {
+      const cartIcon = document.querySelector('.cart-icon');
+      cartIcon.style.transform = 'scale(1.1)';
+      setTimeout(() => cartIcon.style.transform = 'scale(1)', 300);
+    }
+
+    function showNotification(message) {
+      // Create notification element
+      const notification = document.createElement('div');
+      notification.className = 'notification';
+      notification.textContent = message;
+      document.body.appendChild(notification);
+
+      // Show notification
+      setTimeout(() => notification.classList.add('show'), 10);
+
+      // Remove after delay
+      setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
+
+    // Initialize cart count
+    updateCartCount();
+
+    // Live search
+    document.getElementById('searchInput').addEventListener('input', function() {Freshners
+      const filter = this.value.toLowerCase();
+      const cards = document.querySelectorAll('.product-card');
+      cards.forEach(card => {
+        const title = card.getAttribute('data-title').toLowerCase();
+        card.style.display = title.includes(filter) ? '' : 'none';
+      });
+    });
+
+    // Scroll to Top Functionality
+    const scrollButton = document.querySelector('.scroll-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.pageYOffset > 300) {
+        scrollButton.classList.add('show');
+      } else {
+        scrollButton.classList.remove('show');
+      }
+    });
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+
+    const products = [
+  { name: "Aer", price: 120, image: "/static/household/Aer.jpeg", category: "household" },
+  { name: "Air fresher", price: 120, image: "/static/household/Air fresher.jpeg", category: "household" },
+  { name: "Air mist", price: 100, image: "/static/household/Air mist.jpeg", category: "Freshners" },
+  { name: "Air wick", price: 100, image: "/static/household/Air wick.jpeg", category: "Freshners" },
+  { name: "aireal", price: 200, image: "/static/household/aireal.jpeg", category: "Cleaning tools" },
+  { name: "Attack", price: 200, image: "/static/household/Attack.jpeg", category: "Cleaning tools" },
+  { name: "Clip", price: 60, image: "/static/household/Clip.jpeg", category: "Bathroom essential" },
+  { name: "clorox", price: 60, image: "/static/household/clorox.jpeg", category: "Cleaning tools" },
+  { name: "dettol", price: 50, image: "/static/household/dettol.jpeg", category: "Cleaning tools" },
+  { name: "dishwasher", price: 100, image: "/static/household/dishwasher.jpeg", category: "Cleaning tools" },
+  { name: "downy", price: 100, image: "/static/household/downy.jpeg", category: "Cleaning tools" },
+  { name: "Downy cleaner", price: 100, image: "/static/household/Downy cleaner.jpeg", category: "Cleaning tools" },
+  { name: "dust pan", price: 80, image: "/static/household/dust pan.jpeg", category: "Bathroom essential" },
+  { name: "dustbin", price: 80, image: "/static/household/dustbin.jpeg", category: "Bathroom essential" },
+  { name: "dustbin cover", price: 80, image: "/static/household/dustbin cover.jpeg", category: "Bathroom essential" },
+  { name: "Febreze", price: 80, image: "/static/household/Febreze.jpeg", category: "Freshners" },
+  { name: "Fairy", price: 90, image: "/static/household/Fairy.jpeg", category: "household" },
+  { name: "Glade", price: 100, image: "/static/household/Glade.jpeg", category: "Freshner" },
+  { name: "Glade spray", price: 100, image: "/static/household/Glade spray.jpeg", category: "Freshner" },
+  { name: "Glade air", price: 100, image: "/static/household/Glade air.jpeg", category: "Freshner" },
+  { name: "Glat set", price: 100, image: "/static/household/Glat set.jpeg", category: "Freshner" },
+  { name: "Harpic", price: 300, image: "/static/household/Harpic.jpeg", category: "Toilet cleaner" },
+  { name: "Lenor", price: 150, image: "/static/household/Lenor.jpeg", category: "Cleaning tools" },
+  { name: "mop", price: 150, image: "/static/household/mop.jpeg", category: "Toilet cleaner" },
+  { name: "Pril", price: 150, image: "/static/household/Pril.jpeg", category: "Toilet cleaner" },
+  { name: "Room spray", price: 230, image: "/static/household/Room spray.jpeg", category: "Freshner" },
+  { name: "Softouch", price: 250, image: "/static/household/Softouch.jpeg", category: "Cleaning tools" },
+  { name: "sponge", price: 400, image: "/static/household/sponge.jpeg", category: "toilet cleaner" },
+  { name: "spray bottles", price: 400, image: "/static/household/spray bottles.jpeg", category: "Freshner" },
+  { name: "Tide", price: 240, image: "/static/household/tide.jpeg", category: "Cleaning tools" },
+  { name: "Tub", price: 270, image: "/static/household/tub.jpeg", category: "Bathroom essential" },
+  { name: "Vanish", price: 300, image: "/static/household/Vanish.jpeg", category: "Cleaning tools" }
+];
+
+
+    // Function to render products
+    function renderProducts(category = 'all') {
+      const productsGrid = document.getElementById('productsGrid');
+      productsGrid.innerHTML = '';
+
+      const filteredProducts = category === 'all'
+        ? products
+        : products.filter(product => product.category === category);
+
+      filteredProducts.forEach(product => {
+        const productCard = document.createElement('div');
+        productCard.className = 'product-card';
+        productCard.setAttribute('data-title', product.name);
+
+        productCard.innerHTML = `
+          <img src="${product.image}" alt="${product.name}" class="product-image" />
+          <div class="product-details">
+            <div class="product-title">${product.name}</div>
+            <div class="product-price">Rs.${product.price}</div>
+            <div class="product-actions">
+              <button class="view-detail" data-bs-toggle="modal" data-bs-target="#productModal" onclick="showDetails('${product.name}', 'Rs.${product.price}', '${product.image}')">View Details</button>
+              <button class="add-to-cart-btn" onclick="addToCart('${product.name}', ${product.price}, '${product.image}')">Add to Cart</button>
+            </div>
+          </div>
+        `;
+
+        productsGrid.appendChild(productCard);
+      });
+    }
+
+    // Initialize with all products
+    renderProducts();
+
+    // Category selection
+    const categoryItems = document.querySelectorAll('.category-item');
+    const activeCategoryTitle = document.getElementById('active-category');
+
+    categoryItems.forEach(item => {
+      item.addEventListener('click', function() {
+        // Update active class
+        categoryItems.forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+
+        // Get category
+        const category = this.dataset.category;
+
+        // Update category title
+        activeCategoryTitle.textContent = this.textContent.trim();
+
+        // Render products
+        renderProducts(category);
+      });
+    });
+
+    // Show product details
+    function showDetails(name, price, image) {
+      document.getElementById('modalTitle').innerText = name;
+      document.getElementById('modalPrice').innerText = price;
+      document.getElementById('modalImage').src = image;
+const descriptions = {
+  "Dove kit":         "A comprehensive baby care set from Dove, including gentle body wash, lotion, and shampoo—formulated to nourish and protect delicate baby skin.",
+  "Huggies":          "Ultra-soft, hypoallergenic diapers with a snug fit and leak-lock system for all-day comfort and dryness.",
+  "Huggies wipes":    "Extra-thick, alcohol-free wipes with aloe and vitamin E to gently clean and soothe baby’s skin.",
+  "Johnsons kit":     "An all-in-one grooming kit from Johnson's featuring baby wash, lotion, oil, and powder for head-to-toe care.",
+  "Johnsons powder":  "Soft, talc-free baby powder that helps keep skin fresh and dry with a light, soothing scent.",
+  "Johnsons Shampoo": "Gentle tear-free baby shampoo that cleanses hair and scalp while leaving hair soft and manageable.",
+  "Johnsons shampoos": "Value pack of gentle, tear-free baby shampoos designed to nourish and protect delicate hair.",
+  "Mamy poko pants":  "Stretch-fit disposable baby pants with triple absorb channels for up to 12-hour protection and easy on-off.",
+  "Mamy poko pants l":"Large-size MamyPoko diapers offering extra room and superb leak protection for active toddlers.",
+  "Mamy poko pants s4":"Size 4 MamyPoko disposable pants with a snug waistband and breathable side panels for comfortable movement.",
+  "Pampers":          "Soft, super-absorbent Pampers diapers featuring a wetness indicator and breathable layers for healthy skin.",
+  "Pampers wipes":    "Thick, dermatologically tested wipes with plant-based ingredients to gently cleanse and moisturize.",
+  "Baby biscuits":    "Crunchy, sugar-free baby biscuits made from wholegrain to support early chewing skills and nutrition.",
+  "Nestle cereales":  "Nutritious baby cereal blend from Nestlé, enriched with iron and vitamins to support healthy growth."
+};
+
+
+
+      document.getElementById('modalDescription').innerText = descriptions[name] || 'A fresh and nutritious product perfect for your daily meals.';
+    }
+
+    function addToCartFromModal() {
+      const name = document.getElementById('modalTitle').innerText;
+      const priceText = document.getElementById('modalPrice').innerText;
+      const image = document.getElementById('modalImage').src;
+      const price = parseInt(priceText.replace(/\D/g, ''));
+      addToCart(name, price, image);
+    }
+  </script>
+</body>
+</html>

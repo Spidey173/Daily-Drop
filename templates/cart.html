@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily drop</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo1.webp') }}">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+body {
+  background: #f0fdf4;
+  font-family: 'Poppins', sans-serif;
+  color: #222;
+}
+nav {
+  background: linear-gradient(135deg, #0c831f, #1fa82d);
+  padding: 18px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.nav-container a {
+  color: inherit;
+  text-decoration: none; /* REMOVE underline from any link */
+}
+.nav-container h1 {
+  font-size: 3.2rem;     /* Much larger title */
+  color: #fff;
+  font-weight: 800;      /* Super bold */
+  letter-spacing: .03em;
+  line-height: 1.1;
+}
+
+    .cart-page {
+      max-width: 1200px;
+      margin: 100px auto 40px;
+      padding: 0 20px;
+    }
+    h2 {
+  font-size: 2.5rem;
+  text-align: center;
+  color: #0a6e1a;
+  letter-spacing: .01em;
+  margin-bottom: 36px;
+  margin-top: 0;
+}
+.cart-items {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.cart-item {
+  background: #fff;
+  border-radius: 18px;
+  padding: 22px 22px 22px 0;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 18px rgba(16, 156, 54, 0.10);
+  min-width: 0;
+}
+
+.cart-item img {
+  width: 112px;
+  height: 112px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: #f7faf8;
+  margin: 0 30px 0 18px;
+  flex-shrink: 0;
+  border: 1px solid #e5fbe7;
+}
+
+.cart-item-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.cart-item-details h3 {
+  font-size: 1.28rem;
+  color: #12913f;
+  margin: 0 0 5px 0;
+  font-weight: 650;
+  letter-spacing: .01em;
+  white-space: pre-wrap;
+}
+
+.cart-item-details p {
+  font-size: 1.09rem;
+  margin: 0 0 10px 0;
+  color: #555;
+  font-weight: 500;
+}
+
+.cart-item-details p:last-child {
+  margin-bottom: 0;
+}
+
+.cart-item-details span {
+  color: #198c32;
+  font-weight: 700;
+}
+
+.qty-btn {
+  background: #11ab42;
+  color: #fff;
+  border: none;
+  padding: 5px 14px;
+  font-size: 1.05rem;
+  border-radius: 6px;
+  margin: 0 7px;
+  cursor: pointer;
+  transition: background .17s;
+  font-weight: 700;
+}
+.qty-btn:hover {
+  background: #0c831f;
+}
+
+.remove-btn {
+  background: #ff6b6b;
+  color: #fff;
+  border: none;
+  font-size: 1.00rem;
+  padding: 8px 20px;
+  border-radius: 7px;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: background .19s;
+  font-weight: 600;
+  letter-spacing: .03em;
+}
+.remove-btn:hover {
+  background: #e03e3e;
+}
+
+.empty-cart {
+  text-align: center;
+  font-size: 1.4rem;
+  padding: 62px;
+  color: #b2b2b2;
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 1px 10px rgba(14,157,57,0.10);
+}
+
+    .cart-summary {
+      margin-top: 30px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .cart-summary h3 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+  color: #0c831f;
+    }
+    .cart-summary p {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      color: #555;
+    }
+    .proceed-btn {
+  background: linear-gradient(135deg, #11ab42 40%, #1fa82d 100%);
+      color: #fff;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      border: none;
+      width: 100%;
+      transition: background 0.3s ease;
+    }
+    .proceed-btn:hover {
+  background: linear-gradient(120deg, #1fa82d, #0c831f 85%);
+  box-shadow: 0 7px 25px rgba(31,168,45,0.12);
+  transform: translateY(-1px) scale(1.015);
+}
+  </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+          <a href="{{ url_for('index') }}"><h1>Daily drop</h1></a>
+        </div>
+      </nav>
+
+  <div class="cart-page">
+    <h2>Your Cart</h2>
+    <div id="cartItems" class="cart-items">
+      <!-- Cart items will be loaded here -->
+    </div>
+    <div id="cartSummary" class="cart-summary" style="display:none;">
+      <h3>Order Summary</h3>
+      <p id="totalPrice">Total: Rs.0.00</p>
+      <button class="proceed-btn" onclick="proceedToCheckout()">Proceed to Checkout</button>
+    </div>
+  </div>
+  
+  <script>
+
+    // Initialize cart and load items when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    updateCartCount();
+    loadCart();
+});
+
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const count = cart.reduce((total, item) => total + item.quantity, 0);
+    document.getElementById('cart-count').textContent = count;
+}
+function loadCart() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const cartItemsDiv = document.getElementById('cartItems');
+    cartItemsDiv.innerHTML = '';
+
+    if (cart.length === 0) {
+        cartItemsDiv.innerHTML = '<div class="empty-cart">Your cart is empty.</div>';
+        document.getElementById('cartSummary').style.display = 'none';
+        return;
+    }
+
+    let grandTotal = 0;
+    cart.forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        grandTotal += itemTotal;
+
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'cart-item';
+        itemDiv.innerHTML = `
+            <img src="${item.image}" alt="${item.name}" />
+            <div class="cart-item-details">
+                <h3>${item.name}</h3>
+                <p>Price: Rs.${item.price.toFixed(2)}</p>
+                <p>
+                    Quantity:
+                    <button onclick="decreaseQuantity('${item.name}')" class="qty-btn">-</button>
+                    <span>${item.quantity}</span>
+                    <button onclick="increaseQuantity('${item.name}')" class="qty-btn">+</button>
+                </p>
+                <p>Subtotal: Rs.${itemTotal.toFixed(2)}</p>
+                <button onclick="removeItem('${item.name}')" class="remove-btn">Remove</button>
+            </div>
+        `;
+        cartItemsDiv.appendChild(itemDiv);
+    });
+
+    document.getElementById('totalPrice').innerText = `Total: Rs.${grandTotal.toFixed(2)}`;
+    document.getElementById('cartSummary').style.display = 'block';
+}
+function increaseQuantity(productName) {
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const item = cart.find(item => item.name === productName);
+
+    if (item) {
+        item.quantity += 1;
+        localStorage.setItem('cart', JSON.stringify(cart));
+        loadCart();
+        updateCartCount();
+    }
+}
+
+function decreaseQuantity(productName) {
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const itemIndex = cart.findIndex(item => item.name === productName);
+
+    if (itemIndex !== -1) {
+        const item = cart[itemIndex];
+        item.quantity -= 1;
+
+        if (item.quantity <= 0) {
+            cart.splice(itemIndex, 1);
+        }
+
+        localStorage.setItem('cart', JSON.stringify(cart));
+        loadCart();
+        updateCartCount();
+    }
+}
+
+function removeItem(productName) {
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    cart = cart.filter(item => item.name !== productName);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    loadCart();
+    updateCartCount();
+}
+    
+
+
+    function proceedToCheckout() {
+  window.location.href = "{{ url_for('payment') }}"; // Create this new file
+}
+
+    loadCart();
+  </script>
+</body>
+</html>

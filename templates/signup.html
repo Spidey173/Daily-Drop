@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Drop | Sign Up</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #0c831f;
+            --primary-green-dark: #0a6e1a;
+            --secondary-green: #e9f9ec;
+            --accent-green: #1fa82d;
+            --light-green: #f0fdf4;
+            --medium-gray: #f0f0f0;
+            --dark-gray: #333333;
+            --text-gray: #666666;
+            --white: #ffffff;
+            --black: #000000;
+            --card-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --transition: all 0.3s ease;
+            --radius: 10px;
+            --error-color: #ff4757;
+            --success-color: #4ade80;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            background-color: var(--light-green);
+            color: var(--dark-gray);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            background-image:
+                radial-gradient(circle at 85% 15%, rgba(12, 131, 31, 0.05) 0%, transparent 25%),
+                radial-gradient(circle at 15% 85%, rgba(12, 131, 31, 0.05) 0%, transparent 25%);
+        }
+
+        /* Header Box */
+        .header-box {
+            width: 100%;
+            max-width: 450px;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-green-dark));
+            border-radius: var(--radius);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 25px;
+            color: var(--white);
+            text-align: center;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+              overflow: hidden;
+        }
+
+        .header-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .logo-icon {
+            font-size: 2.2rem;
+            color: var(--white);
+            transition: transform 0.5s ease;
+        }
+
+        .logo:hover .logo-icon {
+            transform: rotate(15deg);
+        }
+
+        .logo-text {
+            font-weight: 800;
+            font-size: 2rem;
+            color: var(--white);
+            letter-spacing: -0.5px;
+            position: relative;
+        }
+
+        .logo-text span {
+            font-weight: 600;
+        }
+
+        .tagline {
+            font-size: 1rem;
+            font-weight: 300;
+            opacity: 0.9;
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .signup-container {
+            width: 100%;
+            max-width: 450px;
+            padding: 40px 30px;
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+            transform: translateY(0);
+            transition: all 0.4s ease;
+        }
+
+        .signup-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .signup-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-green), var(--primary-green-dark));
+            z-index: 2;
+        }
+
+        .form-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .form-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-green), var(--primary-green-dark));
+            opacity: 0.2;
+            border-radius: 2px;
+        }
+
+        .form-header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--dark-gray);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-gray);
+            margin-bottom: 8px;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 16px 18px;
+            background: var(--light-green);
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--radius);
+            font-size: 16px;
+            outline: none;
+            transition: var(--transition);
+            color: var(--dark-gray);
+        }
+
+        .form-control::placeholder {
+            color: rgba(102, 102, 102, 0.5);
+        }
+
+        .form-control:focus {
+            background: var(--white);
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(12, 131, 31, 0.1);
+        }
+
+        .form-control.valid {
+            border-color: var(--accent-green);
+        }
+
+        .form-control.invalid {
+            border-color: var(--error-color);
+        }
+
+        .icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent-green);
+            display: none;
+        }
+
+        .icon.error {
+            color: var(--error-color);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 12px;
+            margin-top: 6px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .password-note {
+            font-size: 12px;
+            color: var(--text-gray);
+            margin-top: 8px;
+            line-height: 1.6;
+            padding: 10px;
+            background: var(--light-green);
+            border-radius: var(--radius);
+            border-left: 3px solid var(--primary-green);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right:30px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-gray);
+            cursor: pointer;
+            padding: 5px;
+            z-index: 2;
+        }
+
+        .btn {
+            width: 100%;
+            background: linear-gradient(45deg, var(--primary-green), var(--accent-green));
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius);
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.5px;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(12, 131, 31, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(12, 131, 31, 0.45);
+            background: linear-gradient(45deg, var(--primary-green-dark), var(--primary-green));
+        }
+
+        .btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(12, 131, 31, 0.3);
+        }
+
+        .btn .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-left: 10px;
+        }
+
+        .btn.loading .spinner {
+            display: inline-block;
+        }
+
+        .login-link {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin: 15px 0 5px;
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        .login-link a {
+            color: var(--primary-green);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            margin-left: 5px;
+            position: relative;
+        }
+
+        .login-link a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-green);
+            transition: width 0.3s ease;
+        }
+
+        .login-link a:hover {
+            color: var(--primary-green-dark);
+        }
+
+        .login-link a:hover::after {
+            width: 100%;
+        }
+
+        .terms {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+
+        .terms a {
+            color: var(--primary-green);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .terms a::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--primary-green);
+            transition: width 0.3s ease;
+        }
+
+        .terms a:hover {
+            color: var(--primary-green-dark);
+        }
+
+        .terms a:hover::after {
+            width: 100%;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            margin-bottom: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .alert-success {
+            background: rgba(74, 222, 128, 0.15);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            color: var(--success-color);
+        }
+
+        .alert-error {
+            background: rgba(255, 71, 87, 0.15);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+            color: var(--error-color);
+        }
+
+        .alert i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 576px) {
+            .header-box {
+                padding: 25px 20px;
+            }
+
+            .signup-container {
+                padding: 30px 20px;
+            }
+
+            .logo-text {
+                font-size: 1.5rem;
+            }
+
+            .logo-icon {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Box -->
+    <div class="header-box">
+        <div class="logo">
+            <i class="fas fa-cloud-upload-alt logo-icon"></i>
+            <div class="logo-text">Daily<span>Drop</span></div>
+        </div>
+        <p class="tagline">Your files, everywhere. Securely.</p>
+    </div>
+
+
+    <div class="signup-container">
+        <div class="form-header">
+            <h1>Create Account</h1>
+        </div>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('signup') }}">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <div class="input-container">
+                    <input type="text" id="name" name="name" class="form-control" placeholder="Enter your full name" required>
+                    <i class="fas fa-check icon" id="nameIcon"></i>
+                    <i class="fas fa-exclamation-circle icon error" id="nameErrorIcon"></i>
+                </div>
+                <div class="error-message" id="nameError">Please enter your full name</div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <div class="input-container">
+                    <input type="email" id="email" name="email" class="form-control" placeholder="example@gmail.com" required>
+                    <i class="fas fa-check icon" id="emailIcon"></i>
+                    <i class="fas fa-exclamation-circle icon error" id="emailErrorIcon"></i>
+                </div>
+                <div class="error-message" id="emailError">Please enter a valid email address</div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-container">
+                    <input type="password" id="password" name="password" class="form-control"
+                           placeholder="Enter your password" required>
+                    <i class="fas fa-check icon" id="passwordIcon"></i>
+                    <i class="fas fa-exclamation-circle icon error" id="passwordErrorIcon"></i>
+                    <span class="password-toggle" id="passwordToggle">
+                        <i class="fas fa-eye"></i>
+                    </span>
+                </div>
+                <div class="password-note">
+                    Password must contain at least 8 characters including:<br>
+                    - One uppercase letter<br>
+                    - One lowercase letter<br>
+                    - One number<br>
+                    - One special symbol (@$!%*?&)
+                </div>
+                <div class="error-message" id="passwordError">Invalid password format</div>
+            </div>
+
+            <button type="submit" class="btn">
+                Sign Up
+                <div class="spinner"></div>
+            </button>
+        </form>
+
+        <div class="login-link">
+            <span>Already have an account?</span>
+            <a href="{{ url_for('login') }}">Login <i class="fas fa-arrow-right arrow"></i></a>
+        </div>
+
+        <div class="terms">
+            By creating an account, you agree to our <a href="{{ url_for('terms_signup') }}">Terms of Service</a> and <a href="{{ url_for('privacy_policy_signup') }}">Privacy Policy</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const form = document.querySelector('form');
+            const nameInput = document.getElementById('name');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const passwordToggle = document.getElementById('passwordToggle');
+
+            // Toggle password visibility
+            passwordToggle.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            });
+
+            // Field validation functions
+            function validateName() {
+                const name = nameInput.value.trim();
+                const nameError = document.getElementById('nameError');
+                const nameIcon = document.getElementById('nameIcon');
+                const nameErrorIcon = document.getElementById('nameErrorIcon');
+
+                if (name.length < 2) {
+                    nameInput.classList.add('invalid');
+                    nameInput.classList.remove('valid');
+                    nameError.style.display = 'block';
+                    nameIcon.style.display = 'none';
+                    nameErrorIcon.style.display = 'block';
+                    return false;
+                } else {
+                    nameInput.classList.add('valid');
+                    nameInput.classList.remove('invalid');
+                    nameError.style.display = 'none';
+                    nameIcon.style.display = 'block';
+                    nameErrorIcon.style.display = 'none';
+                    return true;
+                }
+            }
+
+            function validateEmail() {
+                const email = emailInput.value.trim();
+                const emailError = document.getElementById('emailError');
+                const emailIcon = document.getElementById('emailIcon');
+                const emailErrorIcon = document.getElementById('emailErrorIcon');
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                if (!emailRegex.test(email)) {
+                    emailInput.classList.add('invalid');
+                    emailInput.classList.remove('valid');
+                    emailError.style.display = 'block';
+                    emailIcon.style.display = 'none';
+                    emailErrorIcon.style.display = 'block';
+                    return false;
+                } else {
+                    emailInput.classList.add('valid');
+                    emailInput.classList.remove('invalid');
+                    emailError.style.display = 'none';
+                    emailIcon.style.display = 'block';
+                    emailErrorIcon.style.display = 'none';
+                    return true;
+                }
+            }
+
+            function validatePassword() {
+                const password = passwordInput.value;
+                const passwordError = document.getElementById('passwordError');
+                const passwordIcon = document.getElementById('passwordIcon');
+                const passwordErrorIcon = document.getElementById('passwordErrorIcon');
+                // At least 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char
+                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+                if (!passwordRegex.test(password)) {
+                    passwordInput.classList.add('invalid');
+                    passwordInput.classList.remove('valid');
+                    passwordError.style.display = 'block';
+                    passwordIcon.style.display = 'none';
+                    passwordErrorIcon.style.display = 'block';
+                    return false;
+                } else {
+                    passwordInput.classList.add('valid');
+                    passwordInput.classList.remove('invalid');
+                    passwordError.style.display = 'none';
+                    passwordIcon.style.display = 'block';
+                    passwordErrorIcon.style.display = 'none';
+                    return true;
+                }
+            }
+
+            // Real-time validation
+            nameInput.addEventListener('input', validateName);
+            emailInput.addEventListener('input', validateEmail);
+            passwordInput.addEventListener('input', validatePassword);
+
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const isNameValid = validateName();
+                const isEmailValid = validateEmail();
+                const isPasswordValid = validatePassword();
+
+                if (isNameValid && isEmailValid && isPasswordValid) {
+                    const submitButton = this.querySelector('button[type="submit"]');
+                    submitButton.classList.add('loading');
+
+                    // Submit the form after a small delay to show loading state
+                    setTimeout(() => {
+                        this.submit();
+                    }, 1000);
+                }
+            });
+
+            // Initialize validation on page load
+            validateName();
+            validateEmail();
+            validatePassword();
+        });
+
+        function validateForm() {
+            const nameValid = document.getElementById('name').classList.contains('valid');
+            const emailValid = document.getElementById('email').classList.contains('valid');
+            const passwordValid = document.getElementById('password').classList.contains('valid');
+
+            return nameValid && emailValid && passwordValid;
+        }
+    </script>
+</body>
+</html>
