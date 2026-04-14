@@ -1,374 +1,340 @@
-import tkinter as tk
-from tkinter import ttk
+"""
+Database module for handling all database operations.
+
+This module provides database connection management, initialization,
+and helper functions for CRUD operations with proper error handling
+and SQL parameterization.
+"""
+
 import sqlite3
-from tkinter import messagebox
 import json
-from datetime import datetime
+import logging
+from typing import Optional, List, Dict, Any
+from datetime import datetime, timedelta
+from contextlib import contextmanager
+
+from config import Config
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 
-class DatabaseViewer:
-    def __init__(self, master):
-        self.master = master
-        self.master.title("Grocery Store Database Viewer")
-        self.master.geometry("1600x900")
+class DatabaseError(Exception):
+    """Custom exception for database operations."""
 
-        # Configure style
-        self.style = ttk.Style()
-        self.style.theme_use('clam')
-        self.configure_styles()
+    pass
 
-        # Create notebook (tabs)
-        self.notebook = ttk.Notebook(master)
-        self.notebook.pack(fill='both', expand=True)
 
-        # Create frames for each table
-        self.create_users_tab()
-        self.create_products_tab()
-        self.create_orders_tab()
-        self.create_contact_tab()  # ← New tab for contact_messages
+@contextmanager
+def get_db_connection():
+    """
+    Context manager for database connections.
 
-        # Load initial data
-        self.load_data()
+    Ensures proper connection handling and resource cleanup.
 
-    def configure_styles(self):
-        self.style.configure('Treeview.Heading', font=('Helvetica', 11, 'bold'),
-                             background='#4a7a8c', foreground='white')
-        self.style.configure('Treeview', font=('Helvetica', 10), rowheight=28)
-        self.style.map('Treeview.Heading', background=[('active', '#366477')])
-        self.style.configure('TNotebook.Tab', font=('Helvetica', 11, 'bold'), padding=[20, 5])
-        self.style.configure('Detail.TFrame', background='#f0f4f7')
-        self.style.configure('Detail.TLabel', font=('Helvetica', 10), background='#f0f4f7')
+    Yields:
+        sqlite3.Connection: Database connection with row factory set.
 
-    def create_users_tab(self):
-        self.users_frame = ttk.Frame(self.notebook)
-        self.notebook.add(self.users_frame, text="👥 Users")
-
-        # Treeview with horizontal scroll
-        container = ttk.Frame(self.users_frame)
-        container.pack(fill='both', expand=True)
-
-        self.users_tree = ttk.Treeview(
-            container,
-            columns=('ID', 'Name', 'Email', 'Password'),
-            show='headings'
-        )
-        headings = [
-            ('ID', 50),
-            ('Name', 150),
-            ('Email', 250),
-            ('Password', 200)
-        ]
-
-        for heading, width in headings:
-            self.users_tree.heading(heading, text=heading)
-            self.users_tree.column(
-                heading,
-                width=width,
-                anchor='center' if heading == 'ID' else 'w'
-            )
-
-        # Add both scrollbars
-        vsb = ttk.Scrollbar(container, orient="vertical", command=self.users_tree.yview)
-        hsb = ttk.Scrollbar(container, orient="horizontal", command=self.users_tree.xview)
-        self.users_tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
-
-        # Layout
-        self.users_tree.grid(row=0, column=0, sticky='nsew')
-        vsb.grid(row=0, column=1, sticky='ns')
-        hsb.grid(row=1, column=0, sticky='ew')
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
-
-        # Mask passwords
-        self.users_tree.tag_configure('masked', font=('Helvetica', 10), foreground='#666666')
-        self.users_tree.bind('<ButtonRelease-1>', self.mask_passwords)
-
-    def mask_passwords(self, event):
-        for item in self.users_tree.get_children():
-            values = list(self.users_tree.item(item, 'values'))
-            if len(values) > 3 and values[3] != '********':
-                values[3] = '********'
-                self.users_tree.item(item, values=values, tags=('masked',))
-
-    def create_products_tab(self):
-        self.products_frame = ttk.Frame(self.notebook)
-        self.notebook.add(self.products_frame, text="🛒 Products")
-
-        container = ttk.Frame(self.products_frame)
-        container.pack(fill='both', expand=True)
-
-        self.products_tree = ttk.Treeview(
-            container,
-            columns=('ID', 'Name', 'Price', 'Category', 'Image'),
-            show='headings'
-        )
-        headings = [
-            ('ID', 50),
-            ('Name', 200),
-            ('Price', 100),
-            ('Category', 150),
-            ('Image', 400)
-        ]
-
-        for heading, width in headings:
-            self.products_tree.heading(heading, text=heading)
-            self.products_tree.column(
-                heading,
-                width=width,
-                anchor='center' if heading in ('ID', 'Price') else 'w'
-            )
-
-        vsb = ttk.Scrollbar(container, orient="vertical", command=self.products_tree.yview)
-        hsb = ttk.Scrollbar(container, orient="horizontal", command=self.products_tree.xview)
-        self.products_tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
-
-        self.products_tree.grid(row=0, column=0, sticky='nsew')
-        vsb.grid(row=0, column=1, sticky='ns')
-        hsb.grid(row=1, column=0, sticky='ew')
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
-
-    def create_orders_tab(self):
-        self.orders_frame = ttk.Frame(self.notebook)
-        self.notebook.add(self.orders_frame, text="📦 Orders")
-
-        # Create paned window for split view
-        self.orders_paned = ttk.PanedWindow(self.orders_frame, orient=tk.VERTICAL)
-        self.orders_paned.pack(fill='both', expand=True)
-
-        # Orders Treeview (top section)
-        container = ttk.Frame(self.orders_paned)
-        self.orders_tree = ttk.Treeview(
-            container,
-            columns=('ID', 'User ID', 'Customer', 'Phone', 'Total',
-                     'Date', 'Product Count'),
-            show='headings'
-        )
-        headings = [
-            ('ID', 60),
-            ('User ID', 90),
-            ('Customer', 180),
-            ('Phone', 130),
-            ('Total', 120),
-            ('Date', 160),
-            ('Product Count', 120)
-        ]
-
-        for heading, width in headings:
-            self.orders_tree.heading(heading, text=heading)
-            self.orders_tree.column(
-                heading,
-                width=width,
-                anchor='center' if heading in ('ID', 'User ID', 'Total', 'Product Count') else 'w'
-            )
-
-        vsb = ttk.Scrollbar(container, orient="vertical", command=self.orders_tree.yview)
-        hsb = ttk.Scrollbar(container, orient="horizontal", command=self.orders_tree.xview)
-        self.orders_tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
-
-        self.orders_tree.grid(row=0, column=0, sticky='nsew')
-        vsb.grid(row=0, column=1, sticky='ns')
-        hsb.grid(row=1, column=0, sticky='ew')
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
-
-        # Order Details Frame (bottom section)
-        self.details_frame = ttk.Frame(self.orders_paned, style='Detail.TFrame')
-        self.details_label = ttk.Label(
-            self.details_frame,
-            text="Order Details",
-            style='Detail.TLabel',
-            font=('Helvetica', 12, 'bold')
-        )
-        self.details_label.pack(pady=5, anchor='w')
-
-        # Product display area with formatted text and scrollbar
-        text_container = ttk.Frame(self.details_frame)
-        text_container.pack(fill='both', expand=True, padx=10, pady=(0, 10))
-
-        self.details_text = tk.Text(
-            text_container,
-            wrap=tk.WORD,
-            font=('Helvetica', 10),
-            padx=10,
-            pady=10,
-            bg='#ffffff',
-            borderwidth=1,
-            relief='solid'
-        )
-        vsb_text = ttk.Scrollbar(text_container, command=self.details_text.yview)
-        self.details_text.configure(yscrollcommand=vsb_text.set)
-
-        self.details_text.grid(row=0, column=0, sticky='nsew')
-        vsb_text.grid(row=0, column=1, sticky='ns')
-        text_container.grid_rowconfigure(0, weight=1)
-        text_container.grid_columnconfigure(0, weight=1)
-
-        self.details_text.tag_configure('product', font=('Helvetica', 10, 'bold'), foreground='#2c3e50')
-        self.details_text.tag_configure('quantity', font=('Courier New', 9), foreground='#7f8c8d')
-
-        # Add panes to the paned window
-        self.orders_paned.add(container, weight=3)
-        self.orders_paned.add(self.details_frame, weight=2)
-
-        # Bind selection event
-        self.orders_tree.bind('<<TreeviewSelect>>', self.show_order_details)
-
-    def create_contact_tab(self):
-        self.contact_frame = ttk.Frame(self.notebook)
-        self.notebook.add(self.contact_frame, text="✉️ Contact Messages")
-
-        container = ttk.Frame(self.contact_frame)
-        container.pack(fill='both', expand=True)
-
-        # Create Treeview for contact_messages
-        self.contacts_tree = ttk.Treeview(
-            container,
-            columns=(
-                'ID', 'User ID', 'Name', 'Email', 'Phone',
-                'Subject', 'Message', 'Timestamp'
-            ),
-            show='headings'
-        )
-        headings = [
-            ('ID', 50),
-            ('User ID', 80),
-            ('Name', 150),
-            ('Email', 200),
-            ('Phone', 120),
-            ('Subject', 200),
-            ('Message', 400),
-            ('Timestamp', 160)
-        ]
-
-        for heading, width in headings:
-            self.contacts_tree.heading(heading, text=heading)
-            self.contacts_tree.column(
-                heading,
-                width=width,
-                anchor='center' if heading in ('ID', 'User ID') else 'w'
-            )
-
-        # Add scrollbars
-        vsb = ttk.Scrollbar(container, orient="vertical", command=self.contacts_tree.yview)
-        hsb = ttk.Scrollbar(container, orient="horizontal", command=self.contacts_tree.xview)
-        self.contacts_tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
-
-        # Layout
-        self.contacts_tree.grid(row=0, column=0, sticky='nsew')
-        vsb.grid(row=0, column=1, sticky='ns')
-        hsb.grid(row=1, column=0, sticky='ew')
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
-
-    def show_order_details(self, event):
-        self.details_text.delete(1.0, tk.END)
-        selected_item = self.orders_tree.selection()
-        if not selected_item:
-            return
-
-        order_id = self.orders_tree.item(selected_item[0], 'values')[0]
-        conn = sqlite3.connect('product_users.db')
-        order = conn.execute(
-            '''SELECT products_ordered FROM orders WHERE order_id = ?''',
-            (order_id,)
-        ).fetchone()
+    Raises:
+        DatabaseError: If connection fails.
+    """
+    try:
+        conn = sqlite3.connect(Config.DATABASE_PATH, timeout=Config.DB_TIMEOUT)
+        conn.row_factory = sqlite3.Row
+        yield conn
+        conn.commit()
+    except sqlite3.Error as e:
+        logger.error(f"Database connection error: {e}")
+        raise DatabaseError(f"Database error: {e}") from e
+    finally:
         conn.close()
 
-        if order:
-            try:
-                products = json.loads(order[0])
-                self.details_text.insert(tk.END, "🛍️ Products Ordered:\n\n", 'product')
-                for idx, product in enumerate(products, 1):
-                    self.details_text.insert(tk.END, f"{idx}. ", 'quantity')
-                    self.details_text.insert(tk.END, f"{product['name']}\n", 'product')
-                    self.details_text.insert(
-                        tk.END,
-                        f"   Quantity: {product.get('quantity', 1)}",
-                        'quantity'
-                    )
-                    if 'price' in product:
-                        price = f"₹{product['price']:.2f}"
-                        self.details_text.insert(tk.END, f"   Price: {price} each", 'quantity')
-                    self.details_text.insert(tk.END, "\n")
-            except json.JSONDecodeError:
-                self.details_text.insert(tk.END, "⚠️ Error decoding product data", 'product')
 
-    def load_data(self):
-        try:
-            conn = sqlite3.connect('product_users.db')
+def init_database() -> None:
+    """
+    Initialize database with required tables.
 
-            # Load users
-            users = conn.execute(
-                'SELECT id, name, email, password FROM users'
-            ).fetchall()
-            for user in users:
-                masked_user = list(user)
-                masked_user[3] = '********'  # Mask password
-                self.users_tree.insert('', 'end', values=masked_user, tags=('masked',))
+    Creates tables for users, products, orders, and contact_messages
+    if they don't exist.
 
-            # Load products
-            products = conn.execute(
-                'SELECT product_id, name, price, category, image_path FROM products'
-            ).fetchall()
-            for product in products:
-                formatted_product = list(product)
-                formatted_product[2] = f"₹{formatted_product[2]:.2f}"  # Format price
-                self.products_tree.insert('', 'end', values=formatted_product)
+    Raises:
+        DatabaseError: If database initialization fails.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
 
-            # Load orders with product counts
-            orders = conn.execute(
-                '''
-                SELECT order_id, user_id, full_name, phone_number, 
-                       total_amount, order_date, products_ordered 
+            # Create users table
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    email TEXT UNIQUE NOT NULL,
+                    password TEXT NOT NULL,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+
+            # Create products table
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS products (
+                    product_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    price REAL NOT NULL,
+                    category TEXT NOT NULL,
+                    image_path TEXT NOT NULL,
+                    description TEXT
+                )
+            ''')
+
+            # Create orders table
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS orders (
+                    order_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    full_name TEXT NOT NULL,
+                    phone_number TEXT NOT NULL,
+                    address TEXT NOT NULL,
+                    products_ordered TEXT NOT NULL,
+                    total_amount REAL NOT NULL,
+                    order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            ''')
+
+            # Create contact_messages table
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS contact_messages (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER,
+                    name TEXT NOT NULL,
+                    email TEXT NOT NULL,
+                    phone TEXT,
+                    subject TEXT NOT NULL,
+                    message TEXT NOT NULL,
+                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            ''')
+
+            logger.info("Database initialized successfully")
+    except DatabaseError as e:
+        logger.error(f"Failed to initialize database: {e}")
+        raise
+
+
+def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
+    """
+    Retrieve a user by email address.
+
+    Args:
+        email: User's email address.
+
+    Returns:
+        Dictionary containing user data if found, None otherwise.
+
+    Raises:
+        DatabaseError: If database query fails.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                'SELECT * FROM users WHERE email = ?',
+                (email,)
+            )
+            result = cursor.fetchone()
+            return dict(result) if result else None
+    except sqlite3.Error as e:
+        logger.error(f"Error retrieving user by email: {e}")
+        raise DatabaseError(f"Failed to retrieve user: {e}") from e
+
+
+def get_user_by_id(user_id: int) -> Optional[Dict[str, Any]]:
+    """
+    Retrieve a user by ID.
+
+    Args:
+        user_id: User's ID.
+
+    Returns:
+        Dictionary containing user data if found, None otherwise.
+
+    Raises:
+        DatabaseError: If database query fails.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                'SELECT * FROM users WHERE id = ?',
+                (user_id,)
+            )
+            result = cursor.fetchone()
+            return dict(result) if result else None
+    except sqlite3.Error as e:
+        logger.error(f"Error retrieving user by ID: {e}")
+        raise DatabaseError(f"Failed to retrieve user: {e}") from e
+
+
+def get_all_products(category: Optional[str] = None) -> List[Dict[str, Any]]:
+    """
+    Retrieve all products, optionally filtered by category.
+
+    Args:
+        category: Optional category filter.
+
+    Returns:
+        List of product dictionaries.
+
+    Raises:
+        DatabaseError: If database query fails.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            if category:
+                cursor.execute(
+                    'SELECT * FROM products WHERE category = ? ORDER BY name',
+                    (category,)
+                )
+            else:
+                cursor.execute('SELECT * FROM products ORDER BY name')
+            return [dict(row) for row in cursor.fetchall()]
+    except sqlite3.Error as e:
+        logger.error(f"Error retrieving products: {e}")
+        raise DatabaseError(f"Failed to retrieve products: {e}") from e
+
+
+def get_product_by_id(product_id: int) -> Optional[Dict[str, Any]]:
+    """
+    Retrieve a product by ID.
+
+    Args:
+        product_id: Product's ID.
+
+    Returns:
+        Dictionary containing product data if found, None otherwise.
+
+    Raises:
+        DatabaseError: If database query fails.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                'SELECT * FROM products WHERE product_id = ?',
+                (product_id,)
+            )
+            result = cursor.fetchone()
+            return dict(result) if result else None
+    except sqlite3.Error as e:
+        logger.error(f"Error retrieving product: {e}")
+        raise DatabaseError(f"Failed to retrieve product: {e}") from e
+
+
+def get_dashboard_stats() -> Dict[str, Any]:
+    """
+    Retrieve dashboard statistics.
+
+    Returns:
+        Dictionary containing various dashboard metrics.
+
+    Raises:
+        DatabaseError: If database query fails.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            total_orders = cursor.execute(
+                'SELECT COUNT(*) FROM orders'
+            ).fetchone()[0] or 0
+
+            total_users = cursor.execute(
+                'SELECT COUNT(*) FROM users'
+            ).fetchone()[0] or 0
+
+            total_products = cursor.execute(
+                'SELECT COUNT(*) FROM products'
+            ).fetchone()[0] or 0
+
+            total_contacts = cursor.execute(
+                'SELECT COUNT(*) FROM contact_messages'
+            ).fetchone()[0] or 0
+
+            total_revenue = cursor.execute(
+                'SELECT SUM(total_amount) FROM orders'
+            ).fetchone()[0] or 0
+
+            avg_order_value = round(
+                total_revenue / total_orders, 2
+            ) if total_orders > 0 else 0
+
+            return {
+                'total_orders': total_orders,
+                'total_users': total_users,
+                'total_products': total_products,
+                'total_contacts': total_contacts,
+                'total_revenue': total_revenue,
+                'avg_order_value': avg_order_value,
+            }
+    except sqlite3.Error as e:
+        logger.error(f"Error retrieving dashboard stats: {e}")
+        raise DatabaseError(f"Failed to retrieve stats: {e}") from e
+
+
+def get_sales_data(days: int = 30) -> Dict[str, Any]:
+    """
+    Retrieve sales data for the specified number of days.
+
+    Args:
+        days: Number of days to retrieve (default: 30).
+
+    Returns:
+        Dictionary with labels, data, min_date, and max_date.
+
+    Raises:
+        DatabaseError: If database query fails.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            end_date = datetime.now()
+            start_date = end_date - timedelta(days=days - 1)
+
+            # Generate date range
+            date_list = []
+            current_date = start_date
+            while current_date <= end_date:
+                date_list.append(current_date.strftime('%Y-%m-%d'))
+                current_date += timedelta(days=1)
+
+            # Query daily sales
+            cursor.execute('''
+                SELECT DATE(order_date) as sale_date, SUM(total_amount) as daily_total
                 FROM orders
-                '''
-            ).fetchall()
-            for order in orders:
-                formatted_order = list(order)
-                # Format total amount
-                formatted_order[4] = f"₹{formatted_order[4]:.2f}"
-                # Format date
-                try:
-                    date_obj = datetime.strptime(formatted_order[5], '%Y-%m-%d %H:%M:%S')
-                    formatted_order[5] = date_obj.strftime('%d %b %Y %I:%M %p')
-                except:
-                    pass
-                # Calculate product count
-                try:
-                    products_list = json.loads(formatted_order[6])
-                    product_count = f"{len(products_list)} items"
-                except json.JSONDecodeError:
-                    product_count = "N/A"
+                WHERE DATE(order_date) BETWEEN ? AND ?
+                GROUP BY sale_date
+                ORDER BY sale_date
+            ''', (start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d')))
 
-                # Replace products data with count
-                formatted_order[6] = product_count
-                self.orders_tree.insert('', 'end', values=formatted_order)
+            daily_sales = cursor.fetchall()
 
-            # Load contact_messages
-            contacts = conn.execute(
-                '''
-                SELECT id, user_id, name, email, phone, subject, message, timestamp 
-                FROM contact_messages
-                '''
-            ).fetchall()
-            for contact in contacts:
-                contact_row = list(contact)
-                # Format timestamp (if possible)
-                try:
-                    ts_obj = datetime.strptime(contact_row[7], '%Y-%m-%d %H:%M:%S')
-                    contact_row[7] = ts_obj.strftime('%d %b %Y %I:%M %p')
-                except:
-                    pass
+            # Convert to dictionary
+            sales_dict = {row['sale_date']: row['daily_total'] for row in daily_sales}
 
-                self.contacts_tree.insert('', 'end', values=contact_row)
+            # Fill missing dates with 0
+            sales_data = [sales_dict.get(date, 0) for date in date_list]
 
-            conn.close()
-        except Exception as e:
-            messagebox.showerror("Database Error", f"Error loading data: {str(e)}")
-
-
-if __name__ == '__main__':
-    root = tk.Tk()
-    app = DatabaseViewer(root)
-    root.mainloop()
+            return {
+                'labels': date_list,
+                'data': sales_data,
+                'min_date': start_date.strftime('%Y-%m-%d'),
+                'max_date': end_date.strftime('%Y-%m-%d')
+            }
+    except sqlite3.Error as e:
+        logger.error(f"Error retrieving sales data: {e}")
+        raise DatabaseError(f"Failed to retrieve sales data: {e}") from e
