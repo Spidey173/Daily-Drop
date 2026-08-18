@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Orders & Fulfillment - Daily Drop Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo1.webp') }}">
+    
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --accent-mint: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-pink: #ec4899;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.12) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+
+        .admin-nav {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--card-border);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .brand-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #10b981, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .badge-admin {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-mint);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .page-header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 4px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            padding: 22px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-mint);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .stat-content h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stat-content p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .catalog-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .catalog-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .search-filter-box {
+            display: flex;
+            gap: 12px;
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .input-group {
+            position: relative;
+            flex: 1;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .input-control {
+            width: 100%;
+            padding: 10px 14px 10px 40px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .input-control:focus {
+            border-color: var(--accent-mint);
+        }
+
+        .select-control {
+            padding: 10px 14px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .product-table th {
+            padding: 16px 24px;
+            background: rgba(15, 23, 42, 0.4);
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .product-table td {
+            padding: 18px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        .product-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid var(--accent-mint);
+            color: var(--text-main);
+            padding: 14px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Header Navigation -->
+    <nav class="admin-nav">
+        <div class="brand-container">
+            <img src="/static/logo.webp" alt="Daily Drop" class="brand-logo" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=100'">
+            <span class="brand-title">Daily Drop</span>
+            <span class="badge-admin">Admin Orders</span>
+        </div>
+        <div class="nav-actions">
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">
+                <i class="fa-solid fa-box-archive"></i> Products Catalog
+            </a>
+            <a href="/" class="btn btn-outline">
+                <i class="fa-solid fa-store"></i> Storefront
+            </a>
+            <a href="/logout" class="btn btn-outline" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.3);">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Page Title -->
+        <div class="page-header">
+            <div>
+                <h1>Customer Orders & Delivery Fulfillment</h1>
+                <p>Track live customer orders, view purchase details, and update delivery fulfillment status.</p>
+            </div>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary">
+                <i class="fa-solid fa-arrow-left"></i> Back to Catalog Management
+            </a>
+        </div>
+
+        <!-- Dashboard Stat Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ all_orders|length }}</h3>
+                    <p>Total Customer Orders</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa;">
+                    <i class="fa-solid fa-indian-rupee-sign"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Rs. {{ "%.2f"|format(stats.total_revenue|default(0)) }}</h3>
+                    <p>Total Order Value</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Table Card -->
+        <div class="catalog-card">
+            <div class="catalog-header">
+                <div class="search-filter-box">
+                    <div class="input-group">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="orderSearchInput" class="input-control" placeholder="Search orders by customer name, phone, or address..." onkeyup="filterOrders()">
+                    </div>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">
+                    <i class="fa-solid fa-bolt" style="color: var(--accent-mint);"></i> Live fulfillment updates sync with backend
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="product-table">
+                    <thead>
+                        <tr>
+                            <th>S.No</th>
+                            <th>Order ID</th>
+                            <th>Customer Info</th>
+                            <th>Items Ordered</th>
+                            <th>Total Amount</th>
+                            <th>Order Date</th>
+                            <th>Fulfillment Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                        {% for ord in all_orders %}
+                        <tr id="order-row-{{ ord.order_id }}" data-search="{{ ord.full_name|lower }} {{ ord.phone_number }} {{ ord.address|lower }}">
+                            <td style="color: var(--text-muted); font-weight: 600;">#{{ loop.index }}</td>
+                            <td style="color: var(--accent-mint); font-weight: 700;">#ORD-{{ ord.order_id }}</td>
+                            <td>
+                                <div>
+                                    <strong style="display: block; font-size: 0.95rem; color: #fff;">{{ ord.full_name }}</strong>
+                                    <span style="font-size: 0.78rem; color: var(--text-muted);">📞 {{ ord.phone_number }}</span><br>
+                                    <span style="font-size: 0.75rem; color: var(--text-muted);">📍 {{ ord.address }}</span>
+                                </div>
+                            </td>
+                            <td style="font-size: 0.85rem; max-width: 250px;">
+                                {% set items = ord.products_ordered|from_json_or_list %}
+                                <ul style="margin: 0; padding-left: 16px; color: var(--text-muted);">
+                                    {% for item in items %}
+                                    <li><strong style="color: #fff;">{{ item.name }}</strong> (x{{ item.quantity }}) - Rs.{{ item.price }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td style="font-weight: 700; color: var(--accent-mint);">Rs. {{ "%.2f"|format(ord.total_amount) }}</td>
+                            <td style="font-size: 0.8rem; color: var(--text-muted);">{{ ord.order_date }}</td>
+                            <td>
+                                <select class="select-control" style="padding: 6px 10px; font-size: 0.82rem; min-width: 145px; background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2);" onchange="updateOrderStatus({{ ord.order_id }}, this.value)">
+                                    <option value="Processing" {% if ord.status == 'Processing' %}selected{% endif %}>⏳ Processing</option>
+                                    <option value="Out for Delivery" {% if ord.status == 'Out for Delivery' %}selected{% endif %}>🚚 Out for Delivery</option>
+                                    <option value="Delivered" {% if ord.status == 'Delivered' %}selected{% endif %}>✅ Delivered</option>
+                                </select>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px;">No customer orders placed yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Search & Filter Orders
+        function filterOrders() {
+            const query = document.getElementById('orderSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#ordersTableBody tr[id^="order-row-"]');
+
+            rows.forEach(row => {
+                const searchData = row.getAttribute('data-search') || '';
+                row.style.display = searchData.includes(query) ? '' : 'none';
+            });
+        }
+
+        // Update Order Fulfillment Status
+        async function updateOrderStatus(orderId, newStatus) {
+            try {
+                const res = await fetch(`/api/v1/admin/orders/${orderId}/status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(`Order #${orderId} status updated to "${newStatus}"!`);
+                } else {
+                    showToast(data.error || 'Failed to update order status', true);
+                }
+            } catch (e) {
+                showToast('Server error updating order status', true);
+            }
+        }
+
+        // Toast Notification Helper
+        function showToast(msg, isError = false) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            if (isError) toast.style.borderColor = 'var(--danger)';
+
+            toast.innerHTML = `
+                <i class="fa-solid ${isError ? 'fa-circle-xmark' : 'fa-circle-check'}" 
+                   style="color: ${isError ? 'var(--danger)' : 'var(--accent-mint)'}; font-size: 1.1rem;"></i>
+                <span>${msg}</span>
+            `;
+
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+    </script>
+</body>
+</html>

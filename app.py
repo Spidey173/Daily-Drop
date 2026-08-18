@@ -1,0 +1,978 @@
+"""
+Daily Drop E-Commerce Application.
+
+A Flask-based e-commerce platform for selling daily essentials and household items.
+This module contains the main application routes and logic.
+"""
+
+import logging
+import os
+from typing import Optional, Dict, Any, Tuple
+from datetime import datetime, timedelta
+import json
+
+from flask import (
+    Flask, render_template, request, redirect, url_for,
+    session, flash, jsonify
+)
+from urllib.parse import urlparse, urljoin
+from werkzeug.utils import secure_filename
+
+from config import config_dict, Config
+from database import (
+    init_database, DatabaseError, get_user_by_email, get_user_by_id,
+    get_all_products, get_product_by_id, update_product_price,
+    update_product_stock, add_product, delete_product,
+    get_low_stock_products, get_dashboard_stats, get_sales_data,
+    get_all_orders_with_user_info, update_order_status
+)
+from utils import (
+    validate_user_input, is_valid_email, is_valid_phone,
+    validate_order_data, validate_contact_data, sanitize_string
+)
+
+# Initialize Flask app
+app = Flask(__name__)
+app.config.from_object(config_dict.get('development'))
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Initialize database
+try:
+    init_database()
+    logger.info("Database initialized successfully")
+except DatabaseError as e:
+    logger.error(f"Failed to initialize database: {e}")
+    raise
+
+
+@app.template_filter('from_json_or_list')
+def from_json_or_list(val):
+    """Custom template filter to parse JSON string into list/dict or return if already parsed."""
+    if isinstance(val, (list, dict)):
+        return val
+    try:
+        return json.loads(val)
+    except Exception:
+        return []
+
+
+
+# ==================== Helper Functions ====================
+
+def is_safe_url(target: str) -> bool:
+    """
+    Validate if a URL is safe for redirect operations.
+
+    Checks if the target URL belongs to the same origin to prevent
+    open redirect vulnerabilities.
+
+    Args:
+        target: The URL to validate.
+
+    Returns:
+        True if URL is safe, False otherwise.
+    """
+    try:
+        ref_url = urlparse(request.host_url)
+        test_url = urlparse(urljoin(request.host_url, target))
+        return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc
+    except Exception as e:
+        logger.warning(f"Error validating URL: {e}")
+        return False
+
+
+def require_login(f):
+    """
+    Decorator to require user login for a route.
+
+    Redirects to login page if user is not authenticated.
+    """
+    from functools import wraps
+
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+def admin_required(f):
+    """
+    Decorator to require administrator role for a route.
+
+    Redirects unauthorized web users to admin_login, and returns 401 JSON for API calls.
+    """
+    from functools import wraps
+
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session or session.get('user_role') != 'admin':
+            if request.path.startswith('/api/'):
+                return jsonify({'success': False, 'error': 'Admin session expired. Please log in again.'}), 401
+            flash('Administrator authentication required.', 'error')
+            return redirect(url_for('admin_login', next=request.url))
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+
+
+
+# ==================== Authentication Routes ====================
+
+@app.route('/')
+def intro() -> str:
+    """Render the introductory page."""
+    return render_template('intro.html')
+
+
+@app.route('/index')
+def index() -> str:
+    """
+    Render the home page with featured products.
+
+    Returns:
+        Rendered HTML template.
+    """
+    try:
+        products = get_all_products()[:6]  # Get first 6 products
+        return render_template('index.html', products=products)
+    except DatabaseError as e:
+        logger.error(f"Error fetching products: {e}")
+        flash('Error loading products', 'error')
+        return render_template('index.html', products=[])
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup() -> str:
+    """
+    Handle user registration.
+
+    GET: Display signup form.
+    POST: Process signup form and create new user account.
+
+    Returns:
+        Rendered signup template or redirect to login page.
+    """
+    if request.method == 'POST':
+        try:
+            name = sanitize_string(request.form.get('name', ''))
+            email = sanitize_string(request.form.get('email', ''))
+            password = request.form.get('password', '')
+
+            # Validate input
+            is_valid, error_msg = validate_user_input(name, email, password)
+            if not is_valid:
+                flash(error_msg, 'error')
+                return render_template('signup.html')
+
+            # Block any attempt to register admin emails via public signup
+            if 'admin' in email.lower():
+                flash('Admin accounts cannot be created via signup. Please log in directly.', 'error')
+                return render_template('signup.html')
+
+            # Check if user exists
+            if get_user_by_email(email):
+                flash('Email already registered!', 'error')
+                return render_template('signup.html')
+
+            # Create user (in production, hash password using werkzeug.security)
+            from database import get_db_connection
+            with get_db_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute('''
+                    INSERT INTO users (name, email, password)
+                    VALUES (?, ?, ?)
+                ''', (name, email, password))
+
+            flash('Registration successful! Please login.', 'success')
+            return redirect(url_for('login'))
+
+        except DatabaseError as e:
+            logger.error(f"Registration error: {e}")
+            flash('Registration failed. Please try again.', 'error')
+
+    return render_template('signup.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login() -> str:
+    """
+    Handle user login.
+
+    GET: Display login form.
+    POST: Authenticate user and create session.
+
+    Returns:
+        Rendered login template or redirect to home page.
+    """
+    if 'user_id' in session:
+        return redirect(url_for('index'))
+
+    next_url = request.args.get('next') or request.form.get('next')
+
+    if request.method == 'POST':
+        try:
+            email = sanitize_string(request.form.get('email', ''))
+            password = request.form.get('password', '')
+
+            # Validate inputs
+            if not is_valid_email(email) or not password:
+                flash('Invalid email or password', 'error')
+                return render_template('login.html', next_url=next_url)
+
+            # Get user from database
+            user = get_user_by_email(email)
+
+            if not user or user['password'] != password:
+                logger.warning(f"Failed login attempt for email: {email}")
+                flash('Invalid email or password', 'error')
+                return render_template('login.html', next_url=next_url)
+
+            # If admin tries to log in through customer portal, redirect to admin login
+            if user.get('role') == 'admin':
+                flash('Admin accounts must log in via the Admin Portal.', 'error')
+                return redirect(url_for('admin_login'))
+
+            # Create session for customers
+            session['user_id'] = user['id']
+            session['name'] = user['name']
+            session['email'] = user['email']
+            session['user_role'] = 'customer'
+            session.permanent = True
+
+            logger.info(f"Customer {email} logged in successfully")
+            flash('Login successful!', 'success')
+
+            # Safe redirect for customers
+            if next_url and is_safe_url(next_url):
+                return redirect(next_url)
+            return redirect(url_for('index'))
+
+        except DatabaseError as e:
+            logger.error(f"Login error: {e}")
+            flash('Login failed. Please try again.', 'error')
+
+    return render_template('login.html', next_url=next_url)
+
+
+@app.route('/admin_login', methods=['GET', 'POST'])
+def admin_login() -> str:
+    """Handle dedicated administrator authentication."""
+    if session.get('user_role') == 'admin':
+        return redirect(url_for('admin_dashboard'))
+
+    next_url = request.args.get('next') or request.form.get('next')
+
+    if request.method == 'POST':
+        try:
+            email = sanitize_string(request.form.get('email', ''))
+            password = request.form.get('password', '')
+
+            user = get_user_by_email(email)
+
+            if not user or user['password'] != password:
+                flash('Invalid admin email or password', 'error')
+                return render_template('admin_login.html', next_url=next_url)
+
+            if user.get('role') != 'admin':
+                flash('Access denied. Customer accounts cannot use the Admin Portal.', 'error')
+                return render_template('admin_login.html', next_url=next_url)
+
+            # Create admin session
+            session['user_id'] = user['id']
+            session['name'] = user['name']
+            session['email'] = user['email']
+            session['user_role'] = 'admin'
+            session.permanent = True
+
+            logger.info(f"Admin {email} authenticated successfully")
+            flash('Welcome to the Admin Control Panel!', 'success')
+            return redirect(url_for('admin_dashboard'))
+
+        except DatabaseError as e:
+            logger.error(f"Admin login error: {e}")
+            flash('Database error during authentication', 'error')
+
+    return render_template('admin_login.html', next_url=next_url)
+
+
+
+@app.route('/logout')
+def logout() -> str:
+    """Clear user session and redirect to intro page."""
+    session.clear()
+    logger.info("User logged out")
+    flash('You have been logged out.', 'info')
+    return redirect(url_for('intro'))
+
+
+# ==================== Product Routes ====================
+
+@app.route('/vegetables')
+def vegetables() -> str:
+    """Display vegetables and fruits."""
+    try:
+        products = get_all_products('Fruits & Vegetables')
+        return render_template('Vegetables.html', products=products)
+    except DatabaseError as e:
+        logger.error(f"Error fetching vegetables: {e}")
+        flash('Error loading products', 'error')
+        return render_template('Vegetables.html', products=[])
+
+
+@app.route('/grocery')
+def grocery() -> str:
+    """Display grocery products."""
+    try:
+        products = get_all_products('Grocery')
+        return render_template('Grocery.html', products=products)
+    except DatabaseError as e:
+        logger.error(f"Error fetching grocery: {e}")
+        flash('Error loading products', 'error')
+        return render_template('Grocery.html', products=[])
+
+
+@app.route('/home_kitchen')
+def home_kitchen() -> str:
+    """Display home and kitchen products."""
+    try:
+        products = get_all_products('Home & Kitchen')
+        return render_template('home_kitchen.html', products=products)
+    except DatabaseError as e:
+        logger.error(f"Error fetching home_kitchen: {e}")
+        flash('Error loading products', 'error')
+        return render_template('home_kitchen.html', products=[])
+
+
+@app.route('/baby_care')
+def baby_care() -> str:
+    """Display baby care products."""
+    try:
+        products = get_all_products('Baby Care')
+        return render_template('baby_care.html', products=products)
+    except DatabaseError as e:
+        logger.error(f"Error fetching baby_care: {e}")
+        flash('Error loading products', 'error')
+        return render_template('baby_care.html', products=[])
+
+
+@app.route('/household_items')
+def household_items() -> str:
+    """Display household items."""
+    try:
+        products = get_all_products('Household')
+        return render_template('household_items.html', products=products)
+    except DatabaseError as e:
+        logger.error(f"Error fetching household_items: {e}")
+        flash('Error loading products', 'error')
+        return render_template('household_items.html', products=[])
+
+
+@app.route('/personal_care')
+def personal_care() -> str:
+    """Display personal care products."""
+    try:
+        products = get_all_products('Personal Care')
+        return render_template('personal_care.html', products=products)
+    except DatabaseError as e:
+        logger.error(f"Error fetching personal_care: {e}")
+        flash('Error loading products', 'error')
+        return render_template('personal_care.html', products=[])
+
+
+
+@app.route('/snacks')
+def snacks() -> str:
+    """Display snacks."""
+    try:
+        products = get_all_products('Snacks')
+        return render_template('snacks.html', products=products)
+    except DatabaseError as e:
+        logger.error(f"Error fetching snacks: {e}")
+        flash('Error loading products', 'error')
+        return render_template('snacks.html', products=[])
+
+
+@app.route('/dairy_breakfast')
+def dairy_breakfast() -> str:
+    """Display dairy and breakfast products."""
+    try:
+        products = get_all_products('Dairy & Breakfast')
+        return render_template('dairy_breakfast.html', products=products)
+    except DatabaseError as e:
+        logger.error(f"Error fetching dairy products: {e}")
+        flash('Error loading products', 'error')
+        return render_template('dairy_breakfast.html', products=[])
+
+
+@app.route('/beverages')
+def beverages() -> str:
+    """Display beverages."""
+    try:
+        products = get_all_products('Beverages')
+        return render_template('beverages.html', products=products)
+    except DatabaseError as e:
+        logger.error(f"Error fetching beverages: {e}")
+        flash('Error loading products', 'error')
+        return render_template('beverages.html', products=[])
+
+
+@app.route('/frozen_foods')
+def frozen_foods() -> str:
+    """Display frozen foods."""
+    try:
+        products = get_all_products('Frozen Foods')
+        return render_template('frozen_foods.html', products=products)
+    except DatabaseError as e:
+        logger.error(f"Error fetching frozen foods: {e}")
+        flash('Error loading products', 'error')
+        return render_template('frozen_foods.html', products=[])
+
+
+# ==================== Shopping Cart & Payment Routes ====================
+
+@app.after_request
+def set_auth_cookie(response):
+    """Set or clear client-side authentication status cookie."""
+    if 'user_id' in session and session.get('user_role') == 'customer':
+        response.set_cookie('is_logged_in', 'true', max_age=86400, path='/')
+    else:
+        response.set_cookie('is_logged_in', 'false', path='/')
+    return response
+
+
+@app.route('/cart')
+def cart() -> str:
+    """
+    Display shopping cart page.
+
+    Requires user to be logged in.
+    """
+    if 'user_id' not in session:
+        flash('Please log in to access your cart!', 'error')
+        return redirect(url_for('login', next=url_for('cart')))
+    return render_template('cart.html')
+
+
+@app.route('/payment')
+@require_login
+def payment() -> str:
+    """Display payment page."""
+    return render_template('payment.html')
+
+
+@app.route('/place_order', methods=['POST'])
+@require_login
+def place_order() -> Tuple[Dict[str, Any], int]:
+    """
+    Process order placement.
+
+    Validates order data, saves to database, and returns success response.
+
+    Returns:
+        JSON response with success status.
+    """
+    try:
+        data = request.get_json()
+
+        if not data:
+            return jsonify({'success': False, 'message': 'No data received'}), 400
+
+        # Extract and validate data
+        full_name = sanitize_string(data.get('full_name', ''))
+        phone_number = data.get('phone_number', '')
+        address = sanitize_string(data.get('address', ''))
+        products = data.get('products', [])
+        total_amount = data.get('total_amount', 0)
+
+        # Validate order data
+        is_valid, error_msg = validate_order_data(full_name, phone_number, address, products)
+        if not is_valid:
+            logger.warning(f"Invalid order data: {error_msg}")
+            return jsonify({'success': False, 'message': error_msg}), 400
+
+        # Validate total amount
+        try:
+            total_amount = float(total_amount)
+            if total_amount <= 0:
+                raise ValueError("Invalid amount")
+        except (ValueError, TypeError):
+            return jsonify({'success': False, 'message': 'Invalid total amount'}), 400
+
+        # Save order to database
+        from database import get_db_connection
+        products_json = json.dumps(products)
+
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO orders (user_id, full_name, phone_number, address, products_ordered, total_amount)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (
+                session['user_id'],
+                full_name,
+                phone_number,
+                address,
+                products_json,
+                total_amount
+            ))
+
+        logger.info(f"Order placed by user {session['user_id']} for amount {total_amount}")
+        return jsonify({'success': True}), 200
+
+    except json.JSONDecodeError:
+        logger.error("Invalid JSON in order request")
+        return jsonify({'success': False, 'message': 'Invalid data format'}), 400
+    except DatabaseError as e:
+        logger.error(f"Database error while placing order: {e}")
+        return jsonify({'success': False, 'message': 'Order processing failed'}), 500
+    except Exception as e:
+        logger.error(f"Unexpected error in place_order: {e}")
+        return jsonify({'success': False, 'message': 'Server error'}), 500
+
+
+@app.route('/orders')
+@require_login
+def orders() -> str:
+    """
+    Display user's order history.
+
+    Returns:
+        Rendered orders template.
+    """
+    try:
+        from database import get_db_connection
+        from datetime import datetime
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                'SELECT * FROM orders WHERE user_id = ? ORDER BY order_date DESC',
+                (session['user_id'],)
+            )
+            order_rows = cursor.fetchall()
+
+        parsed_orders = []
+        for order in order_rows:
+            order_dict = dict(order)
+            try:
+                order_dict['products'] = json.loads(order_dict['products_ordered'])
+            except json.JSONDecodeError:
+                logger.warning(f"Invalid JSON in order {order['order_id']}")
+                order_dict['products'] = []
+            # Convert order_date string to datetime object for template rendering
+            if isinstance(order_dict.get('order_date'), str):
+                try:
+                    order_dict['order_date'] = datetime.fromisoformat(order_dict['order_date'])
+                except (ValueError, TypeError):
+                    logger.warning(f"Could not parse date: {order_dict.get('order_date')}")
+            parsed_orders.append(order_dict)
+
+        return render_template('orders.html', orders=parsed_orders)
+
+    except DatabaseError as e:
+        logger.error(f"Error retrieving orders: {e}")
+        flash('Error loading orders', 'error')
+        return render_template('orders.html', orders=[])
+
+
+# ==================== User & Contact Routes ====================
+
+@app.route('/dashboard')
+@require_login
+def dashboard() -> str:
+    """Display user dashboard."""
+    return render_template('dashboard.html')
+
+
+@app.route('/contact_us', methods=['GET', 'POST'])
+@require_login
+def contact_us() -> str:
+    """
+    Handle contact form submissions.
+
+    GET: Display contact form.
+    POST: Save contact message to database.
+
+    Returns:
+        Rendered contact template.
+    """
+    try:
+        user = get_user_by_id(session['user_id'])
+
+        if not user:
+            flash('User not found. Please log in again.', 'error')
+            return redirect(url_for('logout'))
+
+        if request.method == 'POST':
+            name = sanitize_string(request.form.get('name', user['name']))
+            email = sanitize_string(request.form.get('email', user['email']))
+            phone = request.form.get('phone', '')
+            subject = sanitize_string(request.form.get('subject', ''))
+            message = sanitize_string(request.form.get('message', ''))
+
+            # Validate contact data
+            is_valid, error_msg = validate_contact_data(name, email, subject, message)
+            if not is_valid:
+                flash(error_msg, 'error')
+                return render_template('contact_us.html', user=user, name=name, email=email)
+
+            # Save contact message
+            from database import get_db_connection
+            with get_db_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute('''
+                    INSERT INTO contact_messages (user_id, name, email, phone, subject, message)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                ''', (session['user_id'], name, email, phone, subject, message))
+
+            logger.info(f"Contact message received from {email}")
+            flash('Your message has been sent successfully!', 'success')
+            return redirect(url_for('contact_us'))
+
+        return render_template('contact_us.html', user=user)
+
+    except DatabaseError as e:
+        logger.error(f"Error in contact_us: {e}")
+        flash('Error processing your request', 'error')
+        return render_template('contact_us.html')
+
+
+# ==================== Static Pages ====================
+
+@app.route('/privacy_policy_signup')
+def privacy_policy_signup() -> str:
+    """Display privacy policy for signup page."""
+    return render_template('privacy_policy_signup.html')
+
+
+@app.route('/privacy_policy_login')
+def privacy_policy_login() -> str:
+    """Display privacy policy for login page."""
+    return render_template('privacy_policy_login.html')
+
+
+@app.route('/privacy_policy_signup_home')
+def privacy_policy_signup_home() -> str:
+    """Display privacy policy for home page signup."""
+    return render_template('privacy_policy_signup_home.html')
+
+
+@app.route('/terms_login')
+def terms_login() -> str:
+    """Display terms and conditions for login page."""
+    return render_template('terms_login.html')
+
+
+@app.route('/terms_signup')
+def terms_signup() -> str:
+    """Display terms and conditions for signup page."""
+    return render_template('terms_signup.html')
+
+
+@app.route('/terms_signup_home')
+def terms_signup_home() -> str:
+    """Display terms and conditions for home page signup."""
+    return render_template('terms_signup_home.html')
+
+
+@app.route('/faqs')
+def faqs() -> str:
+    """Display frequently asked questions."""
+    return render_template('faqs.html')
+
+
+@app.route('/about_us')
+def about_us() -> str:
+    """Display about us page."""
+    return render_template('about_us.html')
+
+
+# ==================== Public & Admin REST APIs ====================
+
+@app.route('/api/v1/products/list', methods=['GET'])
+def api_list_products():
+    """Public REST endpoint returning current product catalog from SQLite DB."""
+    try:
+        category = request.args.get('category')
+        products = get_all_products(category=category)
+        return jsonify({
+            'success': True,
+            'count': len(products),
+            'products': products
+        })
+    except DatabaseError as e:
+        logger.error(f"Error serving product list API: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# ==================== Admin Portal Routes ====================
+
+@app.route('/admin')
+@app.route('/admin/dashboard')
+@admin_required
+def admin_dashboard():
+    """Render the glassmorphic Admin Portal."""
+    try:
+        from database import get_category_revenue, get_hourly_order_distribution
+        stats = get_dashboard_stats()
+        products = get_all_products()
+        low_stock = get_low_stock_products(threshold=10)
+        sales_info = get_sales_data(days=30)
+        all_orders = get_all_orders_with_user_info()
+        category_revenue = get_category_revenue()
+        hourly_distribution = get_hourly_order_distribution()
+
+        return render_template(
+            'admin_dashboard.html',
+            stats=stats,
+            products=products,
+            low_stock=low_stock,
+            sales_info=sales_info,
+            all_orders=all_orders,
+            category_revenue=category_revenue,
+            hourly_distribution=hourly_distribution
+        )
+    except DatabaseError as e:
+        logger.error(f"Error loading admin dashboard: {e}")
+        flash('Error loading admin dashboard data', 'error')
+        return redirect(url_for('index'))
+
+
+@app.route('/api/v1/admin/analytics', methods=['GET'])
+@admin_required
+def api_admin_analytics():
+    """API endpoint serving live analytics metrics for dynamic charts."""
+    try:
+        from database import get_category_revenue, get_hourly_order_distribution
+        stats = get_dashboard_stats()
+        sales_info = get_sales_data(days=30)
+        category_revenue = get_category_revenue()
+        hourly_distribution = get_hourly_order_distribution()
+        low_stock = get_low_stock_products(threshold=10)
+        critical_stock = get_low_stock_products(threshold=5)
+
+        return jsonify({
+            'success': True,
+            'stats': stats,
+            'sales_info': sales_info,
+            'category_revenue': category_revenue,
+            'hourly_distribution': hourly_distribution,
+            'low_stock_count': len(low_stock),
+            'critical_stock_count': len(critical_stock)
+        })
+    except DatabaseError as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+
+@app.route('/admin/orders')
+@app.route('/admin_orders')
+@admin_required
+def admin_orders():
+    """Render dedicated Customer Orders Management page for Admin."""
+    try:
+        stats = get_dashboard_stats()
+        all_orders = get_all_orders_with_user_info()
+        return render_template(
+            'admin_orders.html',
+            stats=stats,
+            all_orders=all_orders
+        )
+    except DatabaseError as e:
+        logger.error(f"Error loading admin orders page: {e}")
+        flash('Error loading admin orders', 'error')
+        return redirect(url_for('admin_dashboard'))
+
+
+@app.route('/api/v1/admin/orders/<int:order_id>/status', methods=['POST', 'PATCH'])
+@admin_required
+def api_update_order_status(order_id: int):
+    """API to update a customer order delivery status."""
+    data = request.get_json(silent=True) or request.form
+    try:
+        new_status = sanitize_string(data.get('status', 'Processing'))
+        if not new_status:
+            return jsonify({'success': False, 'error': 'Status is required'}), 400
+
+        success = update_order_status(order_id, new_status)
+        if success:
+            logger.info(f"Admin updated order #{order_id} status to '{new_status}'")
+            return jsonify({
+                'success': True,
+                'message': f'Order #{order_id} status updated to {new_status}',
+                'order_id': order_id,
+                'new_status': new_status
+            })
+        return jsonify({'success': False, 'error': 'Order not found'}), 404
+    except DatabaseError as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/v1/admin/products/<int:product_id>/price', methods=['POST', 'PATCH'])
+@admin_required
+def api_update_product_price(product_id: int):
+    """API to update a product price dynamically via inline AJAX."""
+    data = request.get_json(silent=True) or request.form
+    try:
+        new_price = float(data.get('price', 0))
+        if new_price <= 0:
+            return jsonify({'success': False, 'error': 'Price must be greater than zero'}), 400
+
+        success = update_product_price(product_id, new_price)
+        if success:
+            logger.info(f"Admin updated product {product_id} price to {new_price}")
+            return jsonify({
+                'success': True,
+                'message': f'Price updated to ${new_price:.2f}',
+                'product_id': product_id,
+                'new_price': new_price
+            })
+        return jsonify({'success': False, 'error': 'Product not found'}), 444
+    except (ValueError, TypeError) as e:
+        return jsonify({'success': False, 'error': f'Invalid price format: {e}'}), 400
+    except DatabaseError as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/v1/admin/products/<int:product_id>/stock', methods=['POST', 'PATCH'])
+@admin_required
+def api_update_product_stock(product_id: int):
+    """API to update product stock quantity via inline AJAX."""
+    data = request.get_json(silent=True) or request.form
+    try:
+        new_stock = int(data.get('stock', 0))
+        if new_stock < 0:
+            return jsonify({'success': False, 'error': 'Stock cannot be negative'}), 400
+
+        success = update_product_stock(product_id, new_stock)
+        if success:
+            logger.info(f"Admin updated product {product_id} stock to {new_stock}")
+            return jsonify({
+                'success': True,
+                'message': f'Stock updated to {new_stock} units',
+                'product_id': product_id,
+                'new_stock': new_stock
+            })
+        return jsonify({'success': False, 'error': 'Product not found'}), 404
+    except (ValueError, TypeError) as e:
+        return jsonify({'success': False, 'error': f'Invalid stock number: {e}'}), 400
+    except DatabaseError as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/v1/admin/products/add', methods=['POST'])
+@admin_required
+def api_add_product():
+    """API to create a new product in the catalog with image upload support."""
+    data = request.form if request.form else (request.get_json(silent=True) or {})
+    try:
+        name = sanitize_string(data.get('name', ''))
+        price = float(data.get('price', 0))
+        category = sanitize_string(data.get('category', 'Grocery'))
+        stock = int(data.get('stock', 50))
+        image_path = sanitize_string(data.get('image_path', ''))
+
+        # Process image file upload if provided
+        if 'image_file' in request.files:
+            file = request.files['image_file']
+            if file and file.filename:
+                raw_filename = file.filename
+                ext = os.path.splitext(raw_filename)[1].lower() or '.png'
+                clean_base = secure_filename(os.path.splitext(raw_filename)[0]) or 'uploaded_image'
+                timestamp = int(datetime.now().timestamp())
+                filename = f"{timestamp}_{clean_base}{ext}"
+
+                uploads_dir = os.path.join(app.static_folder, 'uploads')
+                os.makedirs(uploads_dir, exist_ok=True)
+                save_path = os.path.join(uploads_dir, filename)
+                file.save(save_path)
+                image_path = f'/static/uploads/{filename}'
+
+        if not image_path:
+            image_path = '/static/logo.webp'
+
+        if not name:
+            return jsonify({'success': False, 'error': 'Product name is required'}), 400
+        if price <= 0:
+            return jsonify({'success': False, 'error': 'Price must be greater than zero'}), 400
+        if not category:
+            return jsonify({'success': False, 'error': 'Category is required'}), 400
+
+        new_id = add_product(
+            name=name, price=price, category=category,
+            subcategory='', image_path=image_path,
+            description='', stock=stock
+        )
+        logger.info(f"Admin added new product ID {new_id}: {name} (image: {image_path})")
+        return jsonify({
+            'success': True,
+            'message': f'Product "{name}" added successfully',
+            'product_id': new_id,
+            'image_path': image_path
+        }), 201
+    except (ValueError, TypeError) as e:
+        return jsonify({'success': False, 'error': f'Invalid input format: {e}'}), 400
+    except DatabaseError as e:
+        return jsonify({'success': False, 'error': f'Database error: {e}'}), 500
+    except Exception as e:
+        logger.error(f"Unexpected error adding product: {e}")
+        return jsonify({'success': False, 'error': f'Server error: {e}'}), 500
+
+
+@app.route('/api/v1/admin/products/<int:product_id>/delete', methods=['POST', 'DELETE'])
+@admin_required
+def api_delete_product(product_id: int):
+    """API to delete a product by ID."""
+    try:
+        success = delete_product(product_id)
+        if success:
+            logger.info(f"Admin deleted product ID {product_id}")
+            return jsonify({'success': True, 'message': 'Product deleted successfully', 'product_id': product_id})
+        return jsonify({'success': False, 'error': 'Product not found'}), 404
+    except DatabaseError as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# ==================== Error Handlers ====================
+
+@app.errorhandler(404)
+def not_found_error(error) -> Tuple[str, int]:
+    """Handle 404 errors."""
+    logger.warning(f"404 error: {error}")
+    try:
+        return render_template('404.html'), 404
+    except Exception:
+        return "<h2 style='color:#fff; background:#020805; padding:50px; text-align:center;'>404 - Page Not Found</h2>", 404
+
+
+@app.errorhandler(500)
+def internal_error(error) -> Tuple[str, int]:
+    """Handle 500 errors."""
+    logger.error(f"500 error: {error}")
+    try:
+        return render_template('500.html'), 500
+    except Exception:
+        return "<h2 style='color:#fff; background:#020805; padding:50px; text-align:center;'>500 - Internal Server Error</h2>", 500
+
+
+
+# ==================== Application Entry Point ====================
+
+if __name__ == '__main__':
+    host = os.getenv('HOST', os.getenv('FLASK_RUN_HOST', '0.0.0.0'))
+    port = int(os.getenv('PORT', os.getenv('FLASK_RUN_PORT', 5004)))
+    app.run(
+        host=host,
+        port=port,
+        debug=app.config['DEBUG']
+    )
