@@ -255,7 +255,6 @@ _USER_CACHE_TTL = 300.0  # 5 minutes in-memory cache
 
 def clear_user_cache(email: Optional[str] = None, user_id: Optional[int] = None) -> None:
     """Clear cached user records when modifications occur."""
-    global _USER_EMAIL_CACHE, _USER_ID_CACHE
     if email:
         _USER_EMAIL_CACHE.pop(email.lower().strip(), None)
     if user_id:
@@ -330,7 +329,6 @@ _CACHE_TTL_SECONDS = 300.0  # 5 minutes in-memory cache for ultra-fast page load
 
 def clear_product_cache() -> None:
     """Clear in-memory product cache when updates or catalog changes occur."""
-    global _PRODUCT_CACHE
     _PRODUCT_CACHE.clear()
 
 
@@ -389,7 +387,6 @@ _ANALYTICS_TTL_SECONDS = 300.0  # 5 minutes in-memory cache for ultra-fast dashb
 
 def clear_analytics_cache() -> None:
     """Clear in-memory analytics cache when orders/messages/products change."""
-    global _ANALYTICS_CACHE
     _ANALYTICS_CACHE.clear()
 
 

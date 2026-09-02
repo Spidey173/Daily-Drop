@@ -13,7 +13,6 @@ _WISHLIST_ITEMS_CACHE: Dict[int, Tuple[float, List[Dict[str, Any]]]] = {}
 
 def clear_wishlist_cache(user_id: Optional[int] = None) -> None:
     """Clear in-memory cache for user's wishlist."""
-    global _WISHLIST_IDS_CACHE, _WISHLIST_ITEMS_CACHE
     if user_id:
         _WISHLIST_IDS_CACHE.pop(user_id, None)
         _WISHLIST_ITEMS_CACHE.pop(user_id, None)
