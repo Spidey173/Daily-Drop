@@ -21,7 +21,7 @@ def vegetables() -> str:
 def grocery() -> str:
     """Display Grocery category products."""
     products = ProductService.get_products_by_category('Grocery')
-    return render_template('grocery.html', products=products)
+    return render_template('Grocery.html', products=products)
 
 
 @products_bp.route('/home_kitchen', endpoint='home_kitchen')
