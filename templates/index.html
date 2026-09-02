@@ -385,7 +385,7 @@ searchInput.addEventListener('input', function() {
     const productCard = document.createElement('div');
     productCard.className = 'product-card';
     productCard.innerHTML = `
-      <img src="${product.image}" alt="${product.title}" class="product-image" />
+      <img src="${product.image || product.image_path || "/static/logo1.webp"}" alt="${product.title}" class="product-image" />
       <div class="product-details">
         <div class="product-title">${product.title}</div>
         <div class="product-category">${product.category}</div>
@@ -396,7 +396,7 @@ searchInput.addEventListener('input', function() {
             <span class="discount">${product.discount}% OFF</span>
           ` : ''}
         </div>
-        <button class="add-to-cart-btn" onclick="addToCart('${product.title.replace(/'/g, "\\'")}', ${product.price}, '${product.image}')">ADD</button>
+        <button class="add-to-cart-btn" onclick="addToCart('${product.title.replace(/'/g, "\\'")}', ${product.price}, '${product.image || product.image_path || "/static/logo1.webp"}')">ADD</button>
       </div>
     `;
 
@@ -467,26 +467,33 @@ function renderPopularProducts() {
     popularProducts.forEach(product => {
         const productCard = document.createElement('div');
         productCard.className = 'product-card';
-        productCard.setAttribute('data-title', product.title);
-        productCard.setAttribute('data-category', product.category);
-        productCard.setAttribute('data-product-id', product.id);
+        const pId = product.id || product.product_id;
+        const pTitle = product.title || product.name || 'Product';
+        const safeTitle = pTitle.replace(/'/g, "\\'");
+        const pImg = product.image || product.image_path || '/static/logo1.webp';
+        const pCat = product.category || '';
+        const pPrice = parseFloat(product.price || 0).toFixed(2);
         
-        const isWishlisted = typeof isInWishlist === 'function' && isInWishlist(product.id);
+        productCard.setAttribute('data-title', pTitle);
+        productCard.setAttribute('data-category', pCat);
+        productCard.setAttribute('data-product-id', pId);
+        
+        const isWishlisted = typeof isInWishlist === 'function' && isInWishlist(pId);
         
         productCard.innerHTML = `
             <div class="product-image-container">
-                <button class="wishlist-heart-btn ${isWishlisted ? 'active' : ''}" data-product-id="${product.id}" onclick="toggleWishlist(${product.id}, event)" title="Save to Wishlist">
+                <button class="wishlist-heart-btn ${isWishlisted ? 'active' : ''}" data-product-id="${pId}" onclick="toggleWishlist(${pId}, event)" title="Save to Wishlist">
                     <i class="${isWishlisted ? 'fas' : 'far'} fa-heart"></i>
                 </button>
-                <img src="${product.image}" alt="${product.title}" class="product-image" onclick="showDetails('${product.title.replace(/'/g, "\\'")}', ${product.price}, '${product.image}', '${product.category}')" style="cursor: pointer;" onerror="this.onerror=null; this.src='/static/logo1.webp'" />
+                <img src="${pImg}" alt="${pTitle}" class="product-image" loading="lazy" decoding="async" onclick="showDetails('${safeTitle}', ${product.price}, '${pImg}', '${pCat}')" style="cursor: pointer;" onerror="this.onerror=null; this.src='/static/logo1.webp'" />
             </div>
             <div class="product-details">
-                <div class="product-title" onclick="showDetails('${product.title.replace(/'/g, "\\'")}', ${product.price}, '${product.image}', '${product.category}')" style="cursor: pointer;">${product.title}</div>
-                <div class="product-category">${product.category}</div>
+                <div class="product-title" onclick="showDetails('${safeTitle}', ${product.price}, '${pImg}', '${pCat}')" style="cursor: pointer;">${pTitle}</div>
+                <div class="product-category">${pCat}</div>
                 <div class="product-pricing">
-                    <span class="current-price">Rs.${parseFloat(product.price).toFixed(2)}</span>
+                    <span class="current-price">Rs.${pPrice}</span>
                 </div>
-                <button class="add-to-cart-btn" onclick="addToCart('${product.title.replace(/'/g, "\\'")}', ${product.price}, '${product.image}')">ADD</button>
+                <button class="add-to-cart-btn" onclick="addToCart('${safeTitle}', ${product.price}, '${pImg}')">ADD</button>
             </div>
         `;
         grid.appendChild(productCard);

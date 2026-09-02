@@ -348,7 +348,14 @@ def get_all_products(category: Optional[str] = None) -> List[Dict[str, Any]]:
         with get_db_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute('SELECT * FROM products ORDER BY name')
-                all_products = [dict(row) for row in cursor.fetchall()]
+                raw_products = [dict(row) for row in cursor.fetchall()]
+                all_products = []
+                for item in raw_products:
+                    # Provide frontend alias keys
+                    item['id'] = item.get('product_id')
+                    item['title'] = item.get('name')
+                    item['image'] = item.get('image_path')
+                    all_products.append(item)
                 _PRODUCT_CACHE['__ALL__'] = (now, all_products)
                 if category:
                     return [p for p in all_products if p.get('category', '').lower() == category.lower()]
@@ -375,7 +382,13 @@ def get_product_by_id(product_id: int) -> Optional[Dict[str, Any]]:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute('SELECT * FROM products WHERE product_id = %s', (product_id,))
                 result = cursor.fetchone()
-                return dict(result) if result else None
+                if result:
+                    item = dict(result)
+                    item['id'] = item.get('product_id')
+                    item['title'] = item.get('name')
+                    item['image'] = item.get('image_path')
+                    return item
+                return None
     except Exception as e:
         logger.error(f"Error retrieving product: {e}")
         raise DatabaseError(f"Failed to retrieve product: {e}") from e

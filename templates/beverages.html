@@ -207,15 +207,15 @@
             <button class="wishlist-heart-btn ${typeof isInWishlist === 'function' && isInWishlist(product.id) ? 'active' : ''}" data-product-id="${product.id}" onclick="toggleWishlist(${product.id}, event)" title="Save to Wishlist">
               <i class="${typeof isInWishlist === 'function' && isInWishlist(product.id) ? 'fas' : 'far'} fa-heart"></i>
             </button>
-            <img src="${product.image}" alt="${product.name}" class="product-image" loading="lazy" onerror="this.onerror=null; this.src='/static/logo1.webp'" />
+            <img src="${product.image || product.image_path || "/static/logo1.webp"}" alt="${product.name}" class="product-image" loading="lazy" onerror="this.onerror=null; this.src='/static/logo1.webp'" />
           </div>
           <div class="product-details">
             <div class="product-category">${product.category}</div>
             <div class="product-title">${product.name}</div>
             <div class="product-price">Rs. ${product.price}</div>
             <div class="product-actions">
-              <button class="view-detail" data-bs-toggle="modal" data-bs-target="#productModal" onclick="showDetails('${product.name.replace(/'/g, "\\'")}', 'Rs.${product.price}', '${product.image}')">Details</button>
-              <button class="add-to-cart-btn" onclick="addToCart('${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.image}')"><i class="fas fa-shopping-basket"></i> Add</button>
+              <button class="view-detail" data-bs-toggle="modal" data-bs-target="#productModal" onclick="showDetails('${product.name.replace(/'/g, "\\'")}', 'Rs.${product.price}', '${product.image || product.image_path || "/static/logo1.webp"}')">Details</button>
+              <button class="add-to-cart-btn" onclick="addToCart('${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.image || product.image_path || "/static/logo1.webp"}')"><i class="fas fa-shopping-basket"></i> Add</button>
             </div>
           </div>
         `;
