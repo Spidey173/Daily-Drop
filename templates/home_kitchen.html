@@ -175,7 +175,7 @@
             <button class="wishlist-heart-btn ${typeof isInWishlist === 'function' && isInWishlist(product.id) ? 'active' : ''}" data-product-id="${product.id}" onclick="toggleWishlist(${product.id}, event)" title="Save to Wishlist">
               <i class="${typeof isInWishlist === 'function' && isInWishlist(product.id) ? 'fas' : 'far'} fa-heart"></i>
             </button>
-            <img src="${product.image}" alt="${product.name}" class="product-image" loading="lazy" onerror="this.src='/static/logo.webp'" />
+            <img src="${product.image}" alt="${product.name}" class="product-image" loading="lazy" onerror="this.onerror=null; this.src='/static/logo1.webp'" />
           </div>
           <div class="product-details">
             <div class="product-category">${product.category}</div>

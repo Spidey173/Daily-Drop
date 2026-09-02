@@ -478,7 +478,7 @@ function renderPopularProducts() {
                 <button class="wishlist-heart-btn ${isWishlisted ? 'active' : ''}" data-product-id="${product.id}" onclick="toggleWishlist(${product.id}, event)" title="Save to Wishlist">
                     <i class="${isWishlisted ? 'fas' : 'far'} fa-heart"></i>
                 </button>
-                <img src="${product.image}" alt="${product.title}" class="product-image" onclick="showDetails('${product.title.replace(/'/g, "\\'")}', ${product.price}, '${product.image}', '${product.category}')" style="cursor: pointer;" onerror="this.src='/static/logo.webp'" />
+                <img src="${product.image}" alt="${product.title}" class="product-image" onclick="showDetails('${product.title.replace(/'/g, "\\'")}', ${product.price}, '${product.image}', '${product.category}')" style="cursor: pointer;" onerror="this.onerror=null; this.src='/static/logo1.webp'" />
             </div>
             <div class="product-details">
                 <div class="product-title" onclick="showDetails('${product.title.replace(/'/g, "\\'")}', ${product.price}, '${product.image}', '${product.category}')" style="cursor: pointer;">${product.title}</div>
@@ -509,10 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.addEventListener('productsSynced', renderPopularProducts);
 
-// Initialize cart count on page load
-updateCartCount();
+    if (typeof updateCartCount === 'function') updateCartCount();
   </script>
-
-<script src="{{ url_for('static', filename='js/products.js') }}"></script>
 </body>
 </html>

@@ -866,7 +866,7 @@
                             <td>
                                 <div style="display: flex; align-items: center; gap: 12px;">
                                     <img src="{{ p.image_path }}" alt="{{ p.name }}" class="product-thumb"
-                                        onerror="this.src='/static/logo.webp'">
+                                        onerror="this.onerror=null; this.src='/static/logo1.webp'">
                                     <div>
                                         <strong style="display: block; font-size: 0.95rem;">{{ p.name }}</strong>
                                         <span style="font-size: 0.78rem; color: var(--text-muted);">{{ p.subcategory or
