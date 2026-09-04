@@ -4,7 +4,7 @@ Authentication service handling user registration, password hashing, and login v
 from typing import Optional, Dict, Any, Tuple
 import logging
 from werkzeug.security import generate_password_hash, check_password_hash
-from database import get_db_connection, DatabaseError, get_user_by_email, get_user_by_id
+from database import get_db_connection, DatabaseError, get_user_by_email, get_user_by_id, clear_user_cache
 from utils import validate_user_input, is_valid_email, sanitize_string
 
 logger = logging.getLogger(__name__)
@@ -45,6 +45,7 @@ class AuthService:
                     ''', (name, email, hashed_password))
                     user_id = cursor.fetchone()[0]
 
+            clear_user_cache(email, user_id)
             logger.info(f"User {email} registered successfully with ID {user_id}")
             return True, 'Registration successful! Please login.', user_id
         except DatabaseError as e:

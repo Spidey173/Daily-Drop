@@ -6,7 +6,7 @@ import json
 from app import create_app
 from services.auth_service import AuthService
 from services.order_service import OrderService
-from database import get_db_connection
+from database import get_db_connection, clear_user_cache
 
 
 @pytest.fixture
@@ -15,14 +15,18 @@ def test_user():
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("DELETE FROM users WHERE email = %s", (email,))
+    clear_user_cache(email)
 
-    success, _, user_id = AuthService.register_user('Cart Tester', email, 'Password@1234')
+    success, msg, user_id = AuthService.register_user('Cart Tester', email, 'Password@1234')
+    assert success is True and user_id is not None, f"Failed to setup test user: {msg}"
     yield user_id
 
     # Cleanup
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("DELETE FROM users WHERE id = %s", (user_id,))
+    if user_id:
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM users WHERE id = %s", (user_id,))
+        clear_user_cache(email, user_id)
 
 
 @pytest.fixture

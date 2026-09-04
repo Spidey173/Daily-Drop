@@ -4,7 +4,7 @@ Unit and integration tests for Authentication Blueprint & AuthService.
 import pytest
 from app import create_app
 from services.auth_service import AuthService
-from database import get_db_connection
+from database import get_db_connection, clear_user_cache
 from werkzeug.security import check_password_hash
 
 
@@ -25,6 +25,7 @@ def test_customer_registration_and_login(client):
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("DELETE FROM users WHERE email = %s", (test_email,))
+    clear_user_cache(test_email)
 
     # 1. Test registration via AuthService
     success, msg, user_id = AuthService.register_user(test_name, test_email, test_password)
@@ -56,9 +57,11 @@ def test_customer_registration_and_login(client):
     assert res.status_code == 200
 
     # 7. Cleanup
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("DELETE FROM users WHERE id = %s", (user_id,))
+    if user_id:
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM users WHERE id = %s", (user_id,))
+        clear_user_cache(test_email, user_id)
 
 
 def test_admin_authentication():
