@@ -12,8 +12,6 @@ from datetime import timedelta
 ENV = os.getenv('FLASK_ENV', 'development')
 DEBUG = ENV == 'development'
 
-DEFAULT_NEON_DB_URL = "postgresql://neondb_owner:npg_rD6A2UdGWict@ep-aged-shape-axt5bimg-pooler.c-4.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
-
 
 class Config:
     """Base configuration."""
@@ -26,7 +24,7 @@ class Config:
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)
 
     # Database settings (Neon PostgreSQL)
-    DATABASE_URL = os.getenv('DATABASE_URL', DEFAULT_NEON_DB_URL)
+    DATABASE_URL = os.getenv('DATABASE_URL', '')
     DB_MIN_CONN = int(os.getenv('DB_MIN_CONN', 3))
     DB_MAX_CONN = int(os.getenv('DB_MAX_CONN', 15))
     DB_TIMEOUT = 30
