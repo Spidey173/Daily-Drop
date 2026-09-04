@@ -40,6 +40,6 @@ jobs:
       - name: Run Pytest Suite
         env:
           FLASK_ENV: testing
-          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://neondb_owner:npg_rD6A2UdGWict@ep-aged-shape-axt5bimg-pooler.c-4.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require' }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           pytest -v --color=yes
